@@ -1,0 +1,77 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: idm-voucher-activator
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: idm-voucher-activator
+    egressTraffic: green
+spec:
+  replicas: {{ index .Values.replica.idmvoucheractivator .Values.env }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge:  40%
+       maxUnavailable: 20%
+  selector:
+    matchLabels:
+      app: idm-voucher-activator
+  template:
+    metadata:
+      labels:
+        app: idm-voucher-activator
+    spec:
+      initContainers:
+      - name: copy-configs
+        image: {{ .Values.image.init_centos }}
+        imagePullPolicy: IfNotPresent
+        command: ['bash','/scripts/configs-copy']
+        volumeMounts:
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-cm-main
+          mountPath: /main
+        - name: vol-cm-gp-idm-voucher-activator-main
+          mountPath: /idm-voucher-activator-main
+        - name: vol-cm-gp-idm-voucher-activator-copy
+          mountPath: /scripts
+      {{- include "hostaliases" . | indent 6 }}
+      containers:
+      - name: idm-voucher-activator
+        image: {{ .Values.image.idmvoucheractivator }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 15910
+        env:
+        - name: DEFAULT_TIME_ZONE
+          value: "{{ .Values.timezone }}"
+        - name: TZ
+          value: "{{ .Values.timezone }}"
+        volumeMounts:
+        - name: tz-{{ .Values.country }}
+          mountPath: /usr/share/zoneinfo/Asia/Dhaka
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-logs-idm-voucher-activator
+          mountPath: {{ .Values.logs }}/gp-idm-voucher-activator
+      volumes:
+      - name: tz-{{ .Values.country }}
+        hostPath:
+          path: /usr/share/zoneinfo/{{ .Values.timezone }}
+      - name: vol-cm-main
+        configMap:
+          name: cm-main
+      - name: vol-cm-gp-idm-voucher-activator-main
+        configMap:
+          name: cm-gp-idm-voucher-activator-main
+      - name: vol-logs-idm-voucher-activator
+        persistentVolumeClaim:
+          claimName: logs-idm-voucher-activator-{{ .Release.Namespace }}
+      - name: config-dir-main
+        emptyDir: {}
+      - name: vol-cm-gp-idm-voucher-activator-copy
+        configMap:
+          name: cm-gp-idm-voucher-activator-copy
+      imagePullSecrets:
+      - name: {{ .Values.secret }}

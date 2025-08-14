@@ -1,0 +1,358 @@
+groups:
+  - name: ops-alert
+    rules:
+    - alert: access-management-down
+      expr: absent(kube_deployment_status_replicas{deployment="access-management",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' access-management  is Down.' 
+      for: 15s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical 
+    - alert: account-management-down
+      expr: absent(kube_deployment_status_replicas{deployment="account-management",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' account-management  is Down.' 
+      for: 15s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical 
+    - alert: batch-scheduling-down
+      expr: absent(kube_deployment_status_replicas{deployment="batch-scheduling",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' batch-scheduling  is Down.' 
+      for: 15s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical 
+    - alert: bi-aggregator-down
+      expr: absent(kube_deployment_status_replicas{deployment="bi-aggregator",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' bi-aggregator  is Down.' 
+      for: 2m
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical       
+    - alert: bi-engine-down
+      expr: absent(kube_deployment_status_replicas{deployment="bi-engine",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' bi-engine  is Down.' 
+      for: 5m
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical 
+    - alert: businesslogic-down
+      expr: absent(kube_deployment_status_replicas{deployment="businesslogic",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' businesslogic  is Down.' 
+      for: 15s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical 
+    - alert: contract-management-down
+      expr: absent(kube_deployment_status_replicas{deployment="contract-management",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' contract-management  is Down.' 
+      for: 15s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical 
+    - alert: coreproxy-down
+      expr: absent(kube_deployment_status_replicas{deployment="coreproxy",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' coreproxy  is Down.' 
+      for: 15s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical 
+    - alert: dealer-management-no-cache-down
+      expr: absent(kube_deployment_status_replicas{deployment="dealer-management",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' dealer-management No Cache version  is Down.' 
+      for: 15s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical 
+    - alert: group-management-down
+      expr: absent(kube_deployment_status_replicas{deployment="group-management",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' group-management  is Down.' 
+      for: 15s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical 
+    - alert: identity-management-down
+      expr: absent(kube_statefulset_status_replicas{statefulset="identity-management",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' identity-management  is Down.' 
+      for: 15s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical 
+    - alert: ims-bridge-down
+      expr: absent(kube_deployment_status_replicas{deployment="ims-bridge",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' ims-bridge  is Down.' 
+      for: 15s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical 
+    - alert: ldaplink-down
+      expr: absent(kube_deployment_status_replicas{deployment="ldaplink",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' ldaplink  is Down.' 
+      for: 15s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: warning 
+    - alert: nginx-down
+      expr: absent(kube_deployment_status_replicas{deployment="nginx",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' nginx-three  is Down.'
+      for: 15s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical
+    - alert: notification-manager-down
+      expr: absent(kube_deployment_status_replicas{deployment="notification-manager",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' notification-manager  is Down.' 
+      for: 15s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical 
+    - alert: notification-ui-down
+      expr: absent(kube_deployment_status_replicas{deployment="notification-ui",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' notification-ui  is Down.' 
+      for: 10s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: warning 
+    - alert: object-store-down
+      expr: absent(kube_deployment_status_replicas{deployment="object-store",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' object-store-manager  is Down.' 
+      for: 20s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical 
+    - alert: product-management-down
+      expr: absent(kube_deployment_status_replicas{deployment="product-management",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' opsuct-management  is Down.' 
+      for: 10s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical 
+    - alert: region-management-down
+      expr: absent(kube_deployment_status_replicas{deployment="region-management",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' region-management  is Down.' 
+      for: 10s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical 
+    - alert: template-management-down
+      expr: absent(kube_deployment_status_replicas{deployment="template-management",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' template-management  is Down.' 
+      for: 10s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical    
+    - alert: otp-management-down
+      expr: absent(kube_deployment_status_replicas{deployment="otp-management",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' otp-management  is Down.'
+      for: 10s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical
+    - alert: idm-asset-management-down
+      expr: absent(kube_deployment_status_replicas{deployment="idm-asset-management",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' idm-asset-management  is Down.'
+      for: 10s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical
+    - alert: idm-bprs-link-down
+      expr: absent(kube_deployment_status_replicas{deployment="idm-bprs-link",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' idm-bprs-link  is Down.'
+      for: 10s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical
+    - alert: idm-cim-link-down
+      expr: absent(kube_deployment_status_replicas{deployment="idm-cim-link",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' idm-cim-link  is Down.'
+      for: 10s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical
+    - alert: idm-cms-link-down
+      expr: absent(kube_deployment_status_replicas{deployment="idm-cms-link",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' idm-cms-link  is Down.'
+      for: 10s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical
+    - alert: idm-cockpit-link-down
+      expr: absent(kube_deployment_status_replicas{deployment="idm-cockpit-link",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' idm-cockpit-link  is Down.'
+      for: 10s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical
+    - alert: idm-erp-link-down
+      expr: absent(kube_deployment_status_replicas{deployment="idm-erp-link",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' idm-erp-link  is Down.'
+      for: 10s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical
+    - alert: idm-ers-link-down
+      expr: absent(kube_deployment_status_replicas{deployment="idm-ers-link",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' idm-ers-link  is Down.'
+      for: 10s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical
+    - alert: idm-mfs-link-down
+      expr: absent(kube_deployment_status_replicas{deployment="idm-mfs-link",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' idm-mfs-link  is Down.'
+      for: 10s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical
+    - alert: idm-pol-link-down
+      expr: absent(kube_deployment_status_replicas{deployment="idm-pol-link",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' idm-pol-link  is Down.'
+      for: 10s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical
+
+    - alert: reference-generator-down
+      expr: absent(kube_deployment_status_replicas{deployment="reference-generator",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' reference-generator is Down.'
+      for: 10s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical
+    - alert: order-management-down
+      expr: absent(kube_deployment_status_replicas{deployment="order-management",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' order-management  is Down.'
+      for: 10s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical
+    - alert: nginx-html-copier-down
+      expr: absent(kube_deployment_status_replicas{deployment="nginx-html-copier",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' nginx-html-copier is Down.'
+      for: 10s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical
+    - alert: kyc-down
+      expr: absent(kube_deployment_status_replicas{deployment="kyc",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' kyc is Down.'
+      for: 10s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical
+    - alert: inventory-management-down
+      expr: absent(kube_deployment_status_replicas{deployment="inventory-management",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' inventory-management  is Down.'
+      for: 10s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical
+    - alert: helper-link-down
+      expr: absent(kube_deployment_status_replicas{deployment="helper-link",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' helper-link  is Down.'
+      for: 10s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical
+
+
+    - alert: helper-link-down
+      expr: absent(kube_deployment_status_replicas{deployment="helper-link",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' helper-link  is Down.'
+      for: 10s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical
+
+    - alert: cell-sim-down
+      expr: absent(kube_deployment_status_replicas{deployment="cell-sim",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' cell-sim  is Down.'
+      for: 10s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical        
+    - alert: grn-processor-down
+      expr: absent(kube_deployment_status_replicas{deployment="grn-processor",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' grn-processor  is Down.'
+      for: 10s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical

@@ -1,0 +1,99 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: group-management
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: group-management
+    egressTraffic: green
+spec:
+  replicas: {{ index .Values.replica.groupmanagement .Values.env }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge:  40%
+       maxUnavailable: 20%
+  selector:
+    matchLabels:
+      app: group-management
+  template:
+    metadata:
+      labels:
+        app: group-management
+    spec:
+      initContainers:
+      - name: copy-configs
+        image: {{ .Values.image.init_centos }}
+        imagePullPolicy: IfNotPresent
+        command: ['bash','/scripts/configs-copy']
+        volumeMounts:
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-cm-main
+          mountPath: /main
+        - name: vol-cm-group-management-main
+          mountPath: /group-management-main
+        - name: vol-cm-group-management-audit
+          mountPath: /group-management-audit
+        - name: vol-cm-group-management-notification
+          mountPath: /group-management-notification
+        - name: vol-cm-group-management-tdr
+          mountPath: /group-management-tdr
+        - name: vol-cm-group-management-copy
+          mountPath: /scripts
+      containers:
+      - name: group-management
+        image: {{ .Values.image.groupmanagement }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8084
+        readinessProbe:
+          tcpSocket:
+            port: 8084
+          {{- include "probe" (list . "readiness" "groupmanagement") | nindent 10 }}
+        livenessProbe:
+          tcpSocket:
+            port: 8084
+          {{- include "probe" (list . "liveness" "groupmanagement") | nindent 10 }}
+        env:
+        - name: DEFAULT_TIME_ZONE
+          value: "{{ .Values.timezone }}"
+        - name: TZ
+          value: "{{ .Values.timezone }}"
+        volumeMounts:
+        - name: tz-{{ .Values.country }}
+          mountPath: /usr/share/zoneinfo/Asia/Dhaka
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-logs-group-management
+          mountPath: {{ .Values.logs }}/group-management
+      volumes:
+      - name: tz-{{ .Values.country }}
+        hostPath:
+          path: /usr/share/zoneinfo/{{ .Values.timezone }}
+      - name: vol-cm-main
+        configMap:
+          name: cm-main
+      - name: vol-cm-group-management-main
+        configMap:
+          name: cm-group-management-main
+      - name: vol-cm-group-management-audit
+        configMap:
+          name: cm-group-management-audit
+      - name: vol-cm-group-management-notification
+        configMap:
+          name: cm-group-management-notification
+      - name: vol-cm-group-management-tdr
+        configMap:
+          name: cm-group-management-tdr
+      - name: vol-logs-group-management
+        persistentVolumeClaim:
+          claimName: logs-group-management-{{ .Release.Namespace }}
+      - name: config-dir-main
+        emptyDir: {}
+      - name: vol-cm-group-management-copy
+        configMap:
+          name: cm-group-management-copy
+      imagePullSecrets:
+      - name: {{ .Values.secret }}

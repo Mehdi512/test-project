@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Allocation Update</title>
+</head>
+<body>
+<p>Dear Partner, <span th:if="${transaction.objectMap?.resellerData?.resellerName != null}" th:text="${transaction.objectMap.resellerData.resellerName}"></span><span th:if="${transaction.objectMap?.resellerData?.resellerName == null}">Valued Partner</span> (<span th:if="${transaction.objectMap?.resellerData?.resellerId != null}" th:text="${transaction.objectMap.resellerData.resellerId}"></span><span th:if="${transaction.objectMap?.resellerData?.resellerId == null}">Unknown ID</span>).</p>
+<p th:if="${transaction.objectMap?.resellerIdCashQuotaMap[transaction.objectMap?.resellerData?.resellerId] != null}">Your allocation in the form of cash has been updated for the following product items:</p>
+<ul th:if="${transaction.objectMap?.resellerIdCashQuotaMap[transaction.objectMap?.resellerData?.resellerId] != null}">
+    <li th:each="productQuota : ${transaction.objectMap.resellerIdCashQuotaMap[transaction.objectMap.resellerData.resellerId]}"
+        th:if="${transaction.objectMap?.productSKUAndVariantMap != null && transaction.objectMap?.productSKUAndVariantMap[productQuota.productSku] != null}"
+        th:text="${transaction.objectMap.productSKUAndVariantMap[productQuota.productSku].productName}">
+    </li>
+    <li th:each="productQuota : ${transaction.objectMap.resellerIdCashQuotaMap[transaction.objectMap.resellerData.resellerId]}"
+        th:if="${transaction.objectMap?.productSKUAndVariantMap == null || transaction.objectMap?.productSKUAndVariantMap[productQuota.productSku] == null}"
+        th:text="${productQuota.productSku}">
+    </li>
+</ul>
+<p th:if="${transaction.objectMap?.resellerIdCreditQuotaMap[transaction.objectMap?.resellerData?.resellerId] != null}">Your allocation in the form of credit has been updated for the following product items:</p>
+<ul th:if="${transaction.objectMap?.resellerIdCreditQuotaMap[transaction.objectMap?.resellerData?.resellerId] != null}">
+    <li th:each="productQuota : ${transaction.objectMap.resellerIdCreditQuotaMap[transaction.objectMap.resellerData.resellerId]}"
+        th:if="${transaction.objectMap?.productSKUAndVariantMap != null && transaction.objectMap?.productSKUAndVariantMap[productQuota.productSku] != null}"
+        th:text="${transaction.objectMap.productSKUAndVariantMap[productQuota.productSku].productName}">
+    </li>
+    <li th:each="productQuota : ${transaction.objectMap.resellerIdCreditQuotaMap[transaction.objectMap.resellerData.resellerId]}"
+        th:if="${transaction.objectMap?.productSKUAndVariantMap == null || transaction.objectMap?.productSKUAndVariantMap[productQuota.productSku] == null}"
+        th:text="${productQuota.productSku}">
+    </li>
+</ul>
+<p th:if="${transaction.objectMap?.resellerIdCashQuotaMap[transaction.objectMap?.resellerData?.resellerId] != null || transaction.objectMap?.resellerIdCreditQuotaMap[transaction.objectMap?.resellerData?.resellerId] != null}">Please login to check the allocation tab which is assigned.</p>
+</body>
+</html>

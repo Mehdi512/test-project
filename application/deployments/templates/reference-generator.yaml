@@ -1,0 +1,84 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reference-generator
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: reference-generator
+    egressTraffic: green
+spec:
+  replicas: {{ index .Values.replica.referencegenerator .Values.env }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge:  40%
+       maxUnavailable: 20%
+  selector:
+    matchLabels:
+      app: reference-generator
+  template:
+    metadata:
+      labels:
+        app: reference-generator
+    spec:
+      initContainers:
+      - name: copy-configs
+        image: {{ .Values.image.init_centos }}
+        imagePullPolicy: IfNotPresent
+        command: ['bash','/scripts/configs-copy']
+        volumeMounts:
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-cm-main
+          mountPath: /main
+        - name: vol-cm-reference-generator-main
+          mountPath: /reference-generator
+        - name: vol-cm-reference-generator-copy
+          mountPath: /scripts
+      containers:
+      - name: reference-generator
+        image: {{ .Values.image.referencegenerator }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9997
+        readinessProbe:
+          tcpSocket:
+            port: 9997
+          {{- include "probe" (list . "readiness" "referencegenerator") | nindent 10 }}
+        livenessProbe:
+          tcpSocket:
+            port: 9997
+          {{- include "probe" (list . "liveness" "referencegenerator") | nindent 10 }}
+        env:
+        - name: DEFAULT_TIME_ZONE
+          value: "{{ .Values.timezone }}"
+        - name: TZ
+          value: "{{ .Values.timezone }}"
+        volumeMounts:
+        - name: tz-{{ .Values.country }}
+          mountPath: /etc/localtime
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-logs-reference-generator
+          mountPath: {{ .Values.logs }}/reference-generator
+      volumes:
+      - name: tz-{{ .Values.country }}
+        hostPath:
+          path: /usr/share/zoneinfo/{{ .Values.timezone }}
+      - name: vol-cm-main
+        configMap:
+          name: cm-main
+      - name: vol-cm-reference-generator-main
+        configMap:
+          name: cm-reference-generator-main
+      - name: vol-logs-reference-generator
+        persistentVolumeClaim:
+          claimName: logs-reference-generator-{{ .Release.Namespace }}
+      - name: config-dir-main
+        emptyDir: {}
+      - name: vol-cm-reference-generator-copy
+        configMap:
+          name: cm-reference-generator-copy
+      imagePullSecrets:
+      - name: {{ .Values.secret }}

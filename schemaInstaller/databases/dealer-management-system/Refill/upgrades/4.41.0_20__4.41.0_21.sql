@@ -1,0 +1,1 @@
+ALTER TABLE `Refill`.`cluster_update_info`  ADD IF NOT EXISTS `cluster_cycle` int(11) AFTER `migration_date`;

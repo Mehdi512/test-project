@@ -1,0 +1,28 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-alertmanager-main
+  namespace: {{ .Release.Namespace }}
+data:
+{{ $currentScope := . }}
+{{ range $path, $_ :=  .Files.Glob  "configs/alertmanager/config.yml" }}
+{{- with $currentScope}}
+  {{ (base $path) }}: |-
+{{ .Files.Get $path | indent 6 }}
+{{ end }}
+{{ end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-alertmanager-templates
+  namespace: {{ .Release.Namespace }}
+data:
+{{ $currentScope := . }}
+{{ range $path, $_ :=  .Files.Glob  "configs/alertmanager/alerttemplates/**" }}
+{{- with $currentScope}}
+  {{ (base $path) }}: |-
+{{ .Files.Get $path | indent 6 }}
+{{ end }}
+{{ end }}

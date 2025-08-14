@@ -1,0 +1,1 @@
+ALTER TABLE `product_variant` ADD `is_bundle` TINYINT(1)  NOT NULL  DEFAULT '0'  COMMENT '0 is false, 1 is true';

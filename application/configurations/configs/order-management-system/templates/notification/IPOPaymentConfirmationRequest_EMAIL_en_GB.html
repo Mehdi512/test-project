@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create PO Notification</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: Arial, sans-serif;
+        }
+        th, td {
+            border: 1px solid #888;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .header {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<p class="header">Dear Recipient,</p>
+
+<p>
+    <span th:text="${transaction.initiator.id}"></span>  has raised a <span th:text="${transaction.paymentAgreement}"></span> Purchase Order having the following information:
+</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>Product Head</th>
+            <th>Product Group</th>
+            <th>Product Item</th>
+            <th>Premium Category</th>
+            <th>Quantity</th>
+            <th>Amount</th>
+            <th>Remarks</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="item : ${transaction.orderCollection.orderItemList}">
+            <td th:text="${#strings.listSplit(item.product.categoryPath,'/')[1]}"></td>
+            <td th:text="${#strings.listSplit(item.product.categoryPath,'/')[2]}"></td>
+            <td><span th:remove="tag" th:text="${#strings.listSplit(item.product.categoryPath,'/')[3]}"></span>(<span th:remove="tag" th:text="${item.product.productSKU}"></span>)</td>
+            <td>-</td>
+            <td th:text="${item.quantity.quantity}"></td>
+            <td th:text="${#numbers.formatDecimal(item.totalAmount,1,4)}"></td>
+            <td th:text="${remarks}">-</td>
+        </tr>
+    </tbody>
+</table>
+
+<br>
+
+<p><strong>Total Amount:</strong> BDT <div th:remove="tag" th:each="field : ${transaction.additionalFields}" style="display: inline;"><span th:remove="tag" th:if="${field.name == 'totalAmount'}" th:text="${#numbers.formatDecimal(field.value,1,4)}"></span></div></p>
+<p><strong>Type:</strong> <span th:remove="tag" th:text="${transaction.paymentAgreement}">Cash</span></p>
+<p><strong>PO number:</strong> <span th:remove="tag" th:text="${transaction.orderId}"></span></p>
+<p><strong>PO Raise:</strong> <span th:remove="tag" th:text="${#dates.format(transaction.order.createdStamp, 'dd/MM/yyyy HH:mm:ss')}"></span></p>
+<p th:if="${transaction.invoiceEntities != null and not #lists.isEmpty(transaction.invoiceEntities) and transaction.invoiceEntities[0].dueDate != null}"><strong>Credit Payment Date:</strong> <span th:remove="tag" th:text="${#dates.format(transaction.invoiceEntities[0].dueDate, 'dd/MM/yyyy HH:mm:ss')}"></span></p>
+<p><strong>Raised By:</strong> <span th:remove="tag" th:text="${transaction.initiator.id}"></span></p>
+
+<br>
+<p>DMS Generated Mail Communication</p>
+
+</body>
+</html>

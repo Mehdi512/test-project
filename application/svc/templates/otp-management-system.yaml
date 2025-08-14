@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: otp-management
+  name: svc-otp-management
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - port: 8899
+    targetPort: 8899
+  selector:
+    app: otp-management
+  type: ClusterIP

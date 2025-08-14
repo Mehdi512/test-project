@@ -1,0 +1,77 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: idm-erp-link
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: idm-erp-link
+    egressTraffic: green
+spec:
+  replicas: {{ index .Values.replica.idmerplink .Values.env }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge:  40%
+       maxUnavailable: 20%
+  selector:
+    matchLabels:
+      app: idm-erp-link
+  template:
+    metadata:
+      labels:
+        app: idm-erp-link
+    spec:
+      initContainers:
+      - name: copy-configs
+        image: {{ .Values.image.init_centos }}
+        imagePullPolicy: IfNotPresent
+        command: ['bash','/scripts/configs-copy']
+        volumeMounts:
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-cm-main
+          mountPath: /main
+        - name: vol-cm-gp-idm-erp-link-main
+          mountPath: /idm-erp-link-main
+        - name: vol-cm-gp-idm-erp-link-copy
+          mountPath: /scripts
+      {{- include "hostaliases" . | indent 6 }}
+      containers:
+      - name: idm-erp-link
+        image: {{ .Values.image.idmerplink }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 15700
+        env:
+        - name: DEFAULT_TIME_ZONE
+          value: "{{ .Values.timezone }}"
+        - name: TZ
+          value: "{{ .Values.timezone }}"
+        volumeMounts:
+        - name: tz-{{ .Values.country }}
+          mountPath: /usr/share/zoneinfo/Asia/Dhaka
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-logs-idm-erp-link
+          mountPath: {{ .Values.logs }}/gp-idm-erp-link
+      volumes:
+      - name: tz-{{ .Values.country }}
+        hostPath:
+          path: /usr/share/zoneinfo/{{ .Values.timezone }}
+      - name: vol-cm-main
+        configMap:
+          name: cm-main
+      - name: vol-cm-gp-idm-erp-link-main
+        configMap:
+          name: cm-gp-idm-erp-link-main
+      - name: vol-logs-idm-erp-link
+        persistentVolumeClaim:
+          claimName: logs-idm-erp-link-{{ .Release.Namespace }}
+      - name: config-dir-main
+        emptyDir: {}
+      - name: vol-cm-gp-idm-erp-link-copy
+        configMap:
+          name: cm-gp-idm-erp-link-copy
+      imagePullSecrets:
+      - name: {{ .Values.secret }}

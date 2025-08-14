@@ -1,0 +1,61 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: minio
+    egressTraffic: green
+spec:
+  replicas: {{ index .Values.replica.minio .Values.env }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge:  40%
+       maxUnavailable: 20%
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      annotations:
+      labels:
+        app: minio
+        maistra.io/expose-route: 'true'
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - minio
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: minio
+        image: {{ .Values.image.minio }}
+        imagePullPolicy: IfNotPresent
+        command: ['minio','server','/data']
+        ports:
+        - containerPort: 9000
+        env:
+        - name: DEFAULT_TIME_ZONE
+          value: "{{ .Values.timezone }}"
+        - name: tz-{{ .Values.country }}
+          value: "{{ .Values.timezone }}"
+        - name: MINIO_ACCESS_KEY
+          value: {{ .Values.HOST__minio_accesskey }}
+        - name: MINIO_SECRET_KEY
+          value: {{ .Values.HOST__minio_secretkey }}
+        volumeMounts:
+        - name: vol-logs-minio
+          mountPath: /data
+      volumes:
+      - name: vol-logs-minio
+        persistentVolumeClaim:
+          claimName: logs-minio-{{ .Release.Namespace }}
+      imagePullSecrets:
+      - name: {{ .Values.secret }}

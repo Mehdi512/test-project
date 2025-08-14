@@ -1,0 +1,12 @@
+#!/bin/bash
+
+mkdir -p /opt/seamless/conf/gp-idm-cockpit-link/action
+
+cp -L /main/* /opt/seamless/conf/
+cp -L /idm-cockpit-link-main/* /opt/seamless/conf/gp-idm-cockpit-link/
+cp -L /idm-cockpit-link-action/* /opt/seamless/conf/gp-idm-cockpit-link/action/
+
+
+# SEGREGATE REPLICA LOGS INTO SEPARATE DIRS
+REPLICA_NAME=`echo $HOSTNAME | sed -E 's/.*-//'`
+sed -i "s+/var/seamless/log/gp-idm-cockpit-link+/var/seamless/log/gp-idm-cockpit-link/gp-idm-cockpit-link/${REPLICA_NAME}+g" /opt/seamless/conf/gp-idm-cockpit-link/log4j.properties

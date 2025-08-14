@@ -1,0 +1,108 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: nginx
+    egressTraffic: green
+    version: v1
+spec:
+  replicas: {{ index .Values.replica.nginx .Values.env }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge:  40%
+       maxUnavailable: 20%
+  selector:
+    matchLabels:
+      app: nginx
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: nginx
+        version: v1
+    spec:
+      initContainers:
+      - name: cloner
+        image: {{ .Values.image.init_centos }}
+        imagePullPolicy: IfNotPresent
+        command: ['sh','/scripts/configs-copy']
+        volumeMounts:
+        - name: vol-cm-nginx-copy
+          mountPath: /scripts
+      containers:
+      - name: nginx
+        image: {{ .Values.image.nginx }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 18080
+        env:
+        - name: DEFAULT_TIME_ZONE
+          value: "{{ .Values.timezone }}"
+        - name: TZ
+          value: "{{ .Values.timezone }}"
+        readinessProbe:
+          tcpSocket:
+            port: 18080
+          {{- include "probe" (list . "readiness" "nginx") | nindent 10 }}
+        livenessProbe:
+          tcpSocket:
+            port: 18080
+          {{- include "probe" (list . "liveness" "nginx") | nindent 10 }}
+        volumeMounts:
+        - name: tz-{{ .Values.country }}
+          mountPath: /usr/share/zoneinfo/Asia/Dhaka
+        - name: vol-nginx-html
+          mountPath: /usr/share/nginx
+        - name: vol-cm-nginx-main
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+        - name: vol-cm-nginx-confd
+          mountPath: /etc/nginx/conf.d/default.conf
+          subPath: default.conf
+        - name: vol-cm-nginx-services
+          mountPath: /etc/nginx/conf.d/services
+        - name: vol-cm-nginx-support
+          mountPath: /etc/nginx/conf.d/support
+        - name: vol-cm-nginx-thirdparty
+          mountPath: /etc/nginx/conf.d/services/thirdParty
+        - name: vol-logs-nginx
+          mountPath: /var/seamless/log/nginx
+        - name: vol-bi-report-dir
+          mountPath: /usr/share/nginx/html/analytics/file
+      volumes:
+      - name: tz-{{ .Values.country }}
+        hostPath:
+          path: /usr/share/zoneinfo/{{ .Values.timezone }}
+      - name: vol-cm-nginx-main
+        configMap:
+          name: cm-nginx-main
+      - name: vol-cm-nginx-confd
+        configMap:
+          name: cm-nginx-confd
+      - name: vol-cm-nginx-services
+        configMap:
+          name: cm-nginx-services
+      - name: vol-cm-nginx-support
+        configMap:
+          name: cm-nginx-support
+      - name: vol-cm-nginx-thirdparty
+        configMap:
+          name: cm-nginx-thirdparty
+      - name: vol-logs-nginx
+        persistentVolumeClaim:
+          claimName: logs-nginx-{{ .Release.Namespace }}
+      - name: vol-bi-report-dir
+        persistentVolumeClaim:
+          claimName: bi-report-dir-{{ .Release.Namespace }}
+      - name: vol-nginx-html
+        persistentVolumeClaim:
+          claimName: nginx-html-{{ .Release.Namespace }}
+      - name: vol-cm-nginx-copy
+        configMap:
+          name: cm-nginx-copy
+      imagePullSecrets:
+      - name: {{ .Values.secret }}

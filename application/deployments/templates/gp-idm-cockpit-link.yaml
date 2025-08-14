@@ -1,0 +1,90 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: idm-cockpit-link
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: idm-cockpit-link
+    egressTraffic: green
+spec:
+  replicas: {{ index .Values.replica.idmcockpitlink .Values.env }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge:  40%
+       maxUnavailable: 20%
+  selector:
+    matchLabels:
+      app: idm-cockpit-link
+  template:
+    metadata:
+      labels:
+        app: idm-cockpit-link
+    spec:
+      initContainers:
+      - name: copy-configs
+        image: {{ .Values.image.init_centos }}
+        imagePullPolicy: IfNotPresent
+        command: ['bash','/scripts/configs-copy']
+        volumeMounts:
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-cm-main
+          mountPath: /main
+        - name: vol-cm-gp-idm-cockpit-link-main
+          mountPath: /idm-cockpit-link-main
+        - name: vol-cm-gp-idm-cockpit-link-action
+          mountPath: /idm-cockpit-link-action
+        - name: vol-cm-gp-idm-cockpit-link-copy
+          mountPath: /scripts
+      {{- include "hostaliases" . | indent 6 }}
+      containers:
+      - name: idm-cockpit-link
+        image: {{ .Values.image.idmcockpitlink }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 15501
+        readinessProbe:
+          tcpSocket:
+            port: 15501
+          {{- include "probe" (list . "readiness" "idmcockpitlink") | nindent 10 }}
+        livenessProbe:
+          tcpSocket:
+            port: 15501
+          {{- include "probe" (list . "liveness" "idmcockpitlink") | nindent 10 }}
+        env:
+        - name: DEFAULT_TIME_ZONE
+          value: "{{ .Values.timezone }}"
+        - name: TZ
+          value: "{{ .Values.timezone }}"
+        volumeMounts:
+        - name: tz-{{ .Values.country }}
+          mountPath: /usr/share/zoneinfo/Asia/Dhaka
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-logs-idm-cockpit-link
+          mountPath: {{ .Values.logs }}/gp-idm-cockpit-link
+      volumes:
+      - name: tz-{{ .Values.country }}
+        hostPath:
+          path: /usr/share/zoneinfo/{{ .Values.timezone }}
+      - name: vol-cm-main
+        configMap:
+          name: cm-main
+      - name: vol-cm-gp-idm-cockpit-link-main
+        configMap:
+          name: cm-gp-idm-cockpit-link-main
+      - name: vol-cm-gp-idm-cockpit-link-action
+        configMap:
+          name: cm-gp-idm-cockpit-link-action
+      - name: vol-logs-idm-cockpit-link
+        persistentVolumeClaim:
+          claimName: logs-idm-cockpit-link-{{ .Release.Namespace }}
+      - name: config-dir-main
+        emptyDir: {}
+      - name: vol-cm-gp-idm-cockpit-link-copy
+        configMap:
+          name: cm-gp-idm-cockpit-link-copy
+      imagePullSecrets:
+      - name: {{ .Values.secret }}

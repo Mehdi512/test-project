@@ -1,0 +1,34 @@
+
+## PRIVATE CONTAINER REGISTRY
+private_registry: false
+metrics_container_rgistry_url: k8s.gcr.io/kube-state-metrics
+prometheus_container_rgistry_url: docker.io
+
+# PRIVATE CONTAINER REGISTRY LOGIN & SECRET
+imageCredentials:
+  registry: index.docker.io
+  username:
+  password:
+secret: private-registry-login
+
+## ALL PROMETHEUS IMAGES
+image:
+  kubemetric: kube-state-metrics:v2.3.0
+  prometheus: prom/prometheus:v2.53.4
+  alertmanager: prom/alertmanager:v0.28.1
+  grafana: grafana/grafana:11.6.0
+
+## Below Vars Will Change Storage Type Used For All Deployments
+# If Set To manual, Persistent Volumes Will Be Created Using HostPath Manual Storage
+# If You Have Storage Provided Via StorageClass, Set Below Var To storageclass
+storage_type: 'storageclass' # Select B/W manual/storageclass
+
+# If Above Var Set To storageclass, You Need To Specify Its Name Below
+storageclass_name: 'sample-storage-class' # manual For Manual, Specify If Any Other
+
+storageCapacity:
+  prometheus: 15Gi
+  alertmanager: 200Mi
+  grafana: 2Gi
+
+env: 'staging' # Select B/W staging/production

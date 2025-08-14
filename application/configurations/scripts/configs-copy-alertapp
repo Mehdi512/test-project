@@ -1,0 +1,11 @@
+#!/bin/bash
+
+mkdir -p /opt/seamless/conf/alertapp
+
+cp -L /main/* /opt/seamless/conf/
+cp -L /alertapp/* /opt/seamless/conf/alertapp/
+
+
+# SEGREGATE REPLICA LOGS INTO SEPARATE DIRS
+REPLICA_NAME=`echo $HOSTNAME | sed -E 's/.*-//'`
+sed -i "s+/var/seamless/log/alertapp+/var/seamless/log/alertapp/alertapp/${REPLICA_NAME}+g" /opt/seamless/conf/alertapp/log4j2.xml

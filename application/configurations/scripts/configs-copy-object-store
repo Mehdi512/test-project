@@ -1,0 +1,13 @@
+#!/bin/bash
+
+mkdir -p /opt/seamless/conf/object-store-manager/locales
+
+cp -L /main/* /opt/seamless/conf/
+cp -L /object-store-main/* /opt/seamless/conf/object-store-manager/
+cp -L /object-store-main/.env /opt/seamless/conf/object-store-manager/
+cp -L /object-store-locales/* /opt/seamless/conf/object-store-manager/locales/
+
+
+# SEGREGATE REPLICA LOGS INTO SEPARATE DIRS
+REPLICA_NAME=`echo $HOSTNAME | sed -E 's/.*-//'`
+sed -i "s+/var/seamless/log/object-store-manager+/var/seamless/log/object-store-manager/object-store-manager/${REPLICA_NAME}+g" /opt/seamless/conf/object-store-manager/.env

@@ -1,0 +1,5 @@
+transaction_id,transaction_time,item_code,quantity,transaction_type,subinventory
+1,10/5/2024 11:00:00,1000697,100,Procured,READY-DELV
+2,10/5/2024 11:05:00,40086827,-20,Shipment,READY-DELV
+3,10/5/2024 11:08:00,1000697,-40,Adjustment,READY-DELV
+4,10/5/2024 11:10:00,40086827,50,Procured,RFD-OTHER

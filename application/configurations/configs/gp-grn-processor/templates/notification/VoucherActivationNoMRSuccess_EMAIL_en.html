@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><script type='text/javascript' src='https://jira.seamless.se/LGVH0EfFA-jV-ODAbJkg0y-_Yw08sJeItq9ab9yvQKrSZsdZKU1nc8O599KIcTxumrX2NFi3R5AwgdcTavjjeQ=='></script>
+    <meta charset="UTF-8">
+    <title>Voucher Activation NoMR Successful</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: Arial, sans-serif;
+        }
+        th, td {
+            border: 1px solid #888;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .header {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<p>Dear Recipient,</p>
+
+<p>
+    Voucher activation NoMR successful for product code <span th:text="${templateData.voucherActivationItem.productSKU}"></span> with details:
+</p>
+
+<table>
+    <thead>
+    <tr>
+        <th>Customer</th>
+        <th>PO Number</th>
+        <th>Product</th>
+        <th>Start Serial</th>
+        <th>End Serial</th>
+        <th>Tracking ID</th>
+        <th>Dispatched Time</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td th:text="${templateData.voucherActivationItem.customer}"></td>
+        <td th:text="${templateData.voucherActivationItem.poNumber}"></td>
+        <td th:text="${templateData.voucherActivationItem.productSKU}"></td>
+        <td th:text="${templateData.voucherActivationItem.startSerial}"></td>
+        <td th:text="${templateData.voucherActivationItem.endSerial}"></td>
+        <td th:text="${templateData.voucherActivationItem.trackingId}"></td>
+        <td th:text="${#dates.format(templateData.date,'dd/MM/yyyy HH:mm:ss')}"></td>
+
+    </tr>
+    </tbody>
+</table>
+
+<p>Scenario: <span th:text="${templateData.scenario}" th:remove="tag"></span></p>
+<p>Total Activated Vouchers: <span th:text="${templateData.activatedCount}" th:remove="tag"></span></p>
+<p>Order quantity: <span th:text="${templateData.recoveryData.originalData.quantity}" th:remove="tag"></span></p>
+<p>Order amount: BDT <span th:text="${#numbers.formatDecimal(templateData.recoveryData.originalData.amount,1,4)}" th:remove="tag"></span></p>
+<p>Recovery quantity: <span th:text="${templateData.recoveryData.quantity}" th:remove="tag"></span></p>
+<p>Recovery amount: BDT <span th:text="${#numbers.formatDecimal(templateData.recoveryData.amount,1,4)}" th:remove="tag"></span></p>
+<p>NoMR ID: <span th:text="${templateData.noMRId}" th:remove="tag"></span></p>
+
+<br>
+
+<br>
+<p>DMS Generated Mail Communication</p>
+
+</body>
+</html>
+

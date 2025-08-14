@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: ldaplink-core
+  name: svc-ldaplink
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - port: 8824
+    targetPort: 8824
+  selector:
+    app: ldaplink-core
+  type: ClusterIP

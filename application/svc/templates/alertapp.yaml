@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: alertapp
+  name: svc-alertapp
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - port: 8375
+    targetPort: 8375
+  selector:
+    app: alertapp
+  type: ClusterIP

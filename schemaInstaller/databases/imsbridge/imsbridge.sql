@@ -1,0 +1,43 @@
+START TRANSACTION;
+
+CREATE DATABASE IF NOT EXISTS imsbridge;
+
+USE imsbridge;
+
+SET FOREIGN_KEY_CHECKS = 0;
+
+DROP TABLE IF EXISTS `ersinstall`;
+CREATE TABLE `ersinstall` (
+  `VersionKey` SMALLINT(6) NOT NULL AUTO_INCREMENT,
+  `Version` VARCHAR(20) NOT NULL,
+  `Status` TINYINT(4) NOT NULL DEFAULT '0',
+  `Script` VARCHAR(200) NOT NULL,
+  `last_modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`VersionKey`)
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8;
+
+DROP TABLE IF EXISTS `user_base`;
+CREATE TABLE `user_base` (
+ `id` SMALLINT(6) NOT NULL AUTO_INCREMENT,
+ `repo_name` VARCHAR(250 )NOT NULL,
+ `forget_password_url` VARCHAR(250 )DEFAULT NULL,
+ `change_password_url` VARCHAR(250 )DEFAULT NULL,
+ `forget_password_v2_url` VARCHAR(250 )DEFAULT NULL,
+ `change_password_v2_url` VARCHAR(250 )DEFAULT NULL,
+ `expire_password_url` VARCHAR(250 )DEFAULT NULL,
+ `login_url` VARCHAR(250 )DEFAULT NULL,
+ PRIMARY KEY (`id`)
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8;
+
+DROP TABLE IF EXISTS `type_repo_map`;
+CREATE TABLE `type_repo_map` (
+ `id` SMALLINT(6) NOT NULL AUTO_INCREMENT,
+ `reseller_type` VARCHAR(250 )NOT NULL,
+ `repo_id` SMALLINT(6) NOT NULL,
+ PRIMARY KEY (`id`),
+ CONSTRAINT `unique_user_repo` UNIQUE (`reseller_type` , `repo_id`),
+ CONSTRAINT `FK_user_type_repo` FOREIGN KEY (`repo_id`) REFERENCES `user_base` (`id`)
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8;
+
+SET FOREIGN_KEY_CHECKS = 1;
+COMMIT;

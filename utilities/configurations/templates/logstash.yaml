@@ -1,0 +1,88 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-logstash-main
+  namespace: {{ .Release.Namespace }}
+{{- $context := . }}
+{{- $files := .Files }}
+{{- $binaryExts := list ".ttf" ".jpeg" ".pkcs12" ".pem" ".crt" ".key" ".jks" ".p12" ".jar" }}
+{{- $pathGlob := "configs/logstash/*" }}
+
+{{- $binaryFiles := dict }}
+{{- range $path, $_ := $files.Glob $pathGlob }}
+  {{- $ext := ext $path }}
+  {{- if has $ext $binaryExts }}
+    {{- $_ := set $binaryFiles $path true }}
+  {{- end }}
+{{- end }}
+
+{{- if gt (len $binaryFiles) 0 }}
+binaryData:
+{{- range $path, $_ := $files.Glob $pathGlob }}
+  {{- $ext := ext $path }}
+  {{- if has $ext $binaryExts }}
+  {{ base $path }}: {{ $files.GetBytes $path | toString | b64enc }}
+  {{- end }}
+{{- end }}
+{{- end }}
+
+data:
+{{- range $path, $_ := $files.Glob $pathGlob }}
+  {{- $filename := base $path }}
+  {{- $ext := ext $path }}
+  {{- if not (has $ext $binaryExts) }}
+    {{- $content := $files.Get $path | toString }}
+    {{- if eq $ext ".json" }}
+  {{ $filename }}: |
+{{ $content | indent 4 }}
+    {{- else }}
+  {{ $filename }}: |-
+{{ tpl $content $context | indent 4 }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-logstash-mapping
+  namespace: {{ .Release.Namespace }}
+data:
+{{ tpl (.Files.Glob "configs/logstash/mapping/*").AsConfig . | indent 2 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-logstash-ruby
+  namespace: {{ .Release.Namespace }}
+data:
+{{ (.Files.Glob "configs/logstash/ruby/*").AsConfig | indent 2 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-logstash-copy
+  namespace: {{ .Release.Namespace }}
+data:
+  configs-copy: {{ .Files.Get "scripts/configs-copy-logstash" | quote }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-logstash-cert
+  namespace: {{ .Release.Namespace }}
+data:
+{{ (.Files.Glob "configs/logstash/cert/*").AsConfig | indent 2 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-logstash-jar
+  namespace: {{ .Release.Namespace }}
+binaryData:
+{{- $files := .Files }}
+{{- range tuple "configs/logstash/jar/mariadb-java-client-2.6.2.jar" }}
+  {{ (base .) }}: |-
+{{ $files.Get . | b64enc | indent 4 }}
+{{- end }}

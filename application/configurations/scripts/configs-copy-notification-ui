@@ -1,0 +1,11 @@
+#!/bin/bash
+
+mkdir -p /opt/seamless/conf/notification-ui
+
+cp -L /main/* /opt/seamless/conf/
+cp -L /notification-ui/* /opt/seamless/conf/notification-ui/
+
+
+# SEGREGATE REPLICA LOGS INTO SEPARATE DIRS
+REPLICA_NAME=`echo $HOSTNAME | sed -E 's/.*-//'`
+sed -i "s+/var/seamless/log/notification-ui+/var/seamless/log/notification-ui/notification-ui/${REPLICA_NAME}+g" /opt/seamless/conf/notification-ui//log4j2-spring.xml

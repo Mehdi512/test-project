@@ -1,0 +1,48 @@
+[maxscale]
+threads=auto
+admin_host=0.0.0.0
+admin_secure_gui=false
+auth_connect_timeout=10s
+
+[db-primary]
+type=server
+address={{ .Values.dbs.primary }}
+port=3306
+protocol=MariaDBBackend
+
+[db-replica]
+type=server
+address={{ .Values.dbs.replica }}
+port=3306
+protocol=MariaDBBackend
+
+[MariaDB-Monitor]
+type=monitor
+module=mariadbmon
+servers=db-primary,db-replica
+user={{ .Values.maxscale_db_user }}
+password={{ .Values.maxscale_db_user_pass }}
+monitor_interval=2s
+verify_master_failure=true
+enforce_read_only_slaves=true
+auto_failover=true
+auto_rejoin=true
+
+[Read-Write-Service]
+type=service
+router=readwritesplit
+servers=db-primary,db-replica
+user={{ .Values.maxscale_db_user }}
+password={{ .Values.maxscale_db_user_pass }}
+master_reconnection=true
+master_failure_mode=error_on_write
+causal_reads=none
+transaction_replay=true
+master_accept_reads=true
+
+[Read-Write-Listener]
+type=listener
+service=Read-Write-Service
+protocol=mariadbprotocol
+port=3360
+address=0.0.0.0

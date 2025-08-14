@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# mkdir -p /usr/share/filebeat/
+# cp -L /filebeat/* /usr/share/filebeat/
+
+# SEGREGATE REPLICA LOGS INTO SEPARATE DIRS
+# REPLICA_NAME=`echo $HOSTNAME | sed -E 's/.*-//'`
+# sed -i "s+/var/seamless/log/filebeat+/var/seamless/log/filebeat/filebeat/${REPLICA_NAME}+g" /usr/share/filebeat/filebeat.yml
+# sed -i "s+/var/seamless/log/filebeat+/var/seamless/log/filebeat/filebeat/${REPLICA_NAME}+g" /usr/share/filebeat/log4j.properties

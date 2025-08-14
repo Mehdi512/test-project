@@ -1,0 +1,81 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: filebeat
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: filebeat
+    egressTraffic: green
+spec:
+  selector:
+    matchLabels:
+      app: filebeat
+  template:
+    metadata:
+      labels:
+        app: filebeat
+    spec:
+      serviceAccountName: filebeat
+      initContainers:
+      - name: copy-configs
+        image: {{ .Values.image.init_centos }}
+        imagePullPolicy: IfNotPresent
+        command: ['bash','/scripts/configs-copy']
+        volumeMounts:
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-cm-main
+          mountPath: /main
+        - name: vol-cm-filebeat-main
+          mountPath: /usr/share/filebeat/filebeat.yml
+          subPath: filebeat.yml
+        - name: vol-cm-filebeat-copy
+          mountPath: /scripts
+      containers:
+      - name: filebeat
+        image: {{ .Values.image.filebeat }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5045
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: DEFAULT_TIME_ZONE
+          value: "{{ .Values.timezone }}"
+        - name: TZ
+          value: "{{ .Values.timezone }}"
+        volumeMounts:
+        - name: tz-{{ .Values.country }}
+          mountPath: /etc/localtime
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-logs-filebeat
+          mountPath: {{ .Values.logs }}/filebeat
+        - name: vol-logs-app
+          mountPath: {{ .Values.logs }}
+      volumes:
+      - name: tz-{{ .Values.country }}
+        hostPath:
+          path: /usr/share/zoneinfo/{{ .Values.timezone }}
+      - name: vol-cm-main
+        configMap:
+          name: cm-main
+      - name: vol-cm-filebeat-main
+        configMap:
+          name: cm-filebeat-main
+      - name: vol-logs-app
+        hostPath:
+          path: {{ .Values.logs }}
+      - name: vol-logs-filebeat
+        persistentVolumeClaim:
+          claimName: logs-filebeat-{{ .Release.Namespace }}
+      - name: config-dir-main
+        emptyDir: {}
+      - name: vol-cm-filebeat-copy
+        configMap:
+          name: cm-filebeat-copy
+      imagePullSecrets:
+      - name: {{ .Values.secret }}

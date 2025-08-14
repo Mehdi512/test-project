@@ -1,0 +1,12 @@
+#!/bin/bash
+
+mkdir -p /opt/seamless/conf/cell-sim
+
+cp -L /main/* /opt/seamless/conf/
+cp -L /cell-sim/* /opt/seamless/conf/cell-sim/
+
+
+
+# SEGREGATE REPLICA LOGS INTO SEPARATE DIRS
+REPLICA_NAME=`echo $HOSTNAME | sed -E 's/.*-//'`
+sed -i "s+/var/seamless/log/cell-sim+/var/seamless/log/cell-sim/cell-sim/${REPLICA_NAME}+g" /opt/seamless/conf/cell-sim/log4j.properties

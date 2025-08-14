@@ -1,0 +1,32 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-helper-link-main
+  namespace: {{ .Release.Namespace }}
+data:
+{{ tpl (.Files.Glob "configs/helper-link/*").AsConfig . | indent 2 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-helper-link-action
+  namespace: {{ .Release.Namespace }}
+data:
+{{ tpl (.Files.Glob "configs/helper-link/actions/*").AsConfig . | indent 2 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-helper-link-messages
+  namespace: {{ .Release.Namespace }}
+data:
+{{ (.Files.Glob "configs/helper-link/messages/*").AsConfig | indent 2 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-helper-link-copy
+  namespace: {{ .Release.Namespace }}
+data:
+  configs-copy: {{ .Files.Get "scripts/configs-copy-helper-link" | quote }}

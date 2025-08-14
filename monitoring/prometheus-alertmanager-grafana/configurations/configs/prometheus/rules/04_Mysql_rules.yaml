@@ -1,0 +1,98 @@
+groups:
+   - name: PROD MariaDB Monitoring
+     rules:
+
+      - alert: MysqlDown
+        expr: mysql_up == 0
+        for: 2s
+        labels:
+          severity: critical
+          messagecode: MysqlDown
+          application: Mysql
+          service: '{{ $labels.instance }}'          
+          namespace: ops          
+        annotations:
+          summary: "MySQL down (instance {{ $labels.instance }})"
+          description: "MySQL instance is down on {{ $labels.instance }}\n  VALUE = {{ $value }}\n  LABELS: {{     $labels }}"
+
+      - alert: MysqlTooManyConnections
+        expr: avg by (instance) (max_over_time(mysql_global_status_threads_connected[60s])) / avg by (instance) (    mysql_global_variables_max_connections) * 100 > 80
+        for: 60s
+        labels:
+          severity: warning
+          messagecode: MysqlTooManyConnections
+          application: Mysql
+          service: '{{ $labels.instance }}'          
+          namespace: ops          
+        annotations:
+          summary: "MySQL too many connections (instance {{ $labels.instance }})"
+          description: "More than 80% of MySQL connections are in use on {{ $labels.instance }}\n  VALUE = {{     $value }}\n  LABELS: {{ $labels }}"
+
+      - alert: MysqlSlaveStatus
+        expr: mysql_slave_status_slave_io_running == 0
+        for: 5s
+        labels:
+          severity: critical
+          messagecode: MysqlSlaveStatus
+          application: Mysql
+          service: '{{ $labels.instance }}'                   
+          namespace: ops          
+        annotations:
+          summary: "MySQL Slave Replication Status is DOWN (instance {{ $labels.instance }})"
+          description: "MySQL Slave Replication Status is DOWN {{ $labels.instance }}\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+
+      - alert: MysqlSlaveReplicationLag
+        expr: mysql_slave_status_master_server_id > 0 and ON (instance) (    mysql_slave_status_seconds_behind_master - mysql_slave_status_sql_delay) > 300
+        for: 5s
+        labels:
+          severity: warning
+          messagecode: MysqlSlaveReplicationLag
+          application: Mysql
+          service: '{{ $labels.instance }}'                 
+          namespace: ops          
+        annotations:
+          summary: "MySQL Slave replication lag  (instance {{ $labels.instance }})"
+          description: "MysqL replication lag on {{ $labels.instance }}\n  VALUE = {{ $value }}\n  LABELS: {{     $labels }}"
+
+      - alert: MysqlSlowQuery
+        expr: mysql_global_status_slow_queries > 200000
+        for: 40m
+        labels:
+          severity: warning
+          messagecode: MysqlSlowQuery
+          application: Mysql
+          service: '{{ $labels.instance }}'                  
+          namespace: ops          
+        annotations:
+          summary: MySQL slow queries (instance {{ $labels.instance }})
+          description: "MySQL server mysql has some new slow query.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: MysqlRestarted
+        expr: mysql_global_status_uptime < 600
+        for: 5s
+        labels:
+          severity: critical
+          messagecode: MysqlRestarted
+          application: Mysql
+          service: '{{ $labels.instance }}'                   
+          namespace: ops          
+        annotations:
+          summary: MySQL restarted (instance {{ $labels.instance }})
+          description: "MySQL has just been restarted, less than one minute ago on {{ $labels.instance }}.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+
+      - alert: MysqlConnection
+        expr: mysql_global_status_threads_connected{job="mysqld-exporter"} > 3000
+        for: 1m
+        labels:
+          severity: critical
+          messagecode: MysqlConnection
+          application: Mysql
+          service: '{{ $labels.instance }}'
+          namespace: ops          
+        annotations:
+          summary: MysqlConnection exceed (instance {{ $labels.instance }})
+          description: "MysqlConnection open connection is too much  {{ $labels.instance }}.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+

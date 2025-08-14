@@ -1,0 +1,76 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: accountlink
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: accountlink
+    egressTraffic: green
+spec:
+  replicas: {{ index .Values.replica.accountlink .Values.env }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge:  40%
+       maxUnavailable: 20%
+  selector:
+    matchLabels:
+      app: accountlink
+  template:
+    metadata:
+      labels:
+        app: accountlink
+    spec:
+      initContainers:
+      - name: copy-configs
+        image: {{ .Values.image.init_centos }}
+        imagePullPolicy: IfNotPresent
+        command: ['bash','/scripts/configs-copy']
+        volumeMounts:
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-cm-main
+          mountPath: /main
+        - name: vol-cm-accountlink-main
+          mountPath: /accountlink
+        - name: vol-cm-accountlink-copy
+          mountPath: /scripts
+      containers:
+      - name: accountlink
+        image: {{ .Values.image.accountlink }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8091
+        env:
+        - name: DEFAULT_TIME_ZONE
+          value: "{{ .Values.timezone }}"
+        - name: TZ
+          value: "{{ .Values.timezone }}"
+        volumeMounts:
+        - name: tz-{{ .Values.country }}
+          mountPath: /usr/share/zoneinfo/Asia/Dhaka
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-logs-accountlink
+          mountPath: {{ .Values.logs }}/accountlinksimulator
+      volumes:
+      - name: tz-{{ .Values.country }}
+        hostPath:
+          path: /usr/share/zoneinfo/{{ .Values.timezone }}
+      - name: vol-cm-main
+        configMap:
+          name: cm-main
+      - name: vol-cm-accountlink-main
+        configMap:
+          name: cm-accountlink-main
+      - name: vol-logs-accountlink
+        persistentVolumeClaim:
+          claimName: logs-accountlink-{{ .Release.Namespace }}
+      - name: config-dir-main
+        emptyDir: {}
+      - name: vol-cm-accountlink-copy
+        configMap:
+          name: cm-accountlink-copy
+      imagePullSecrets:
+      - name: {{ .Values.secret }}

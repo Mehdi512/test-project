@@ -1,0 +1,87 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-ui
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: notification-ui
+    egressTraffic: green
+    version: v1
+spec:
+  replicas: {{ index .Values.replica.notificationui .Values.env }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge:  40%
+       maxUnavailable: 20%
+  selector:
+    matchLabels:
+      app: notification-ui
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: notification-ui
+        version: v1
+    spec:
+      initContainers:
+      - name: copy-configs
+        image: {{ .Values.image.init_centos }}
+        imagePullPolicy: IfNotPresent
+        command: ['bash','/scripts/configs-copy']
+        volumeMounts:
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-cm-main
+          mountPath: /main
+        - name: vol-cm-notification-ui-main
+          mountPath: /notification-ui
+        - name: vol-cm-notification-ui-copy
+          mountPath: /scripts
+      containers:
+      - name: notification-ui
+        image: {{ .Values.image.notificationui }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8177
+        readinessProbe:
+          tcpSocket:
+            port: 8177
+          {{- include "probe" (list . "readiness" "notificationui") | nindent 10 }}
+        livenessProbe:
+          tcpSocket:
+            port: 8177
+          {{- include "probe" (list . "liveness" "notificationui") | nindent 10 }}
+        env:
+        - name: DEFAULT_TIME_ZONE
+          value: "{{ .Values.timezone }}"
+        - name: TZ
+          value: "{{ .Values.timezone }}"
+        volumeMounts:
+        - name: tz-{{ .Values.country }}
+          mountPath: /usr/share/zoneinfo/Asia/Dhaka
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-logs-notification-ui
+          mountPath: {{ .Values.logs }}/notification-ui
+      volumes:
+      - name: tz-{{ .Values.country }}
+        hostPath:
+          path: /usr/share/zoneinfo/{{ .Values.timezone }}
+      - name: vol-cm-main
+        configMap:
+          name: cm-main
+      - name: vol-cm-notification-ui-main
+        configMap:
+          name: cm-notification-ui-main
+      - name: vol-logs-notification-ui
+        persistentVolumeClaim:
+          claimName: logs-notification-ui-{{ .Release.Namespace }}
+      - name: config-dir-main
+        emptyDir: {}
+      - name: vol-cm-notification-ui-copy
+        configMap:
+          name: cm-notification-ui-copy
+      imagePullSecrets:
+      - name: {{ .Values.secret }}

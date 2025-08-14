@@ -1,0 +1,99 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bi-engine
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: bi-engine
+    egressTraffic: green
+spec:
+  replicas: {{ index .Values.replica.biengine .Values.env }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge:  40%
+       maxUnavailable: 20%
+  selector:
+    matchLabels:
+      app: bi-engine
+  template:
+    metadata:
+      labels:
+        app: bi-engine
+    spec:
+      initContainers:
+      - name: copy-configs
+        image: {{ .Values.image.init_centos }}
+        imagePullPolicy: IfNotPresent
+        command: ['bash','/scripts/configs-copy']
+        volumeMounts:
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-cm-main
+          mountPath: /main
+        - name: vol-cm-biengine-main
+          mountPath: /bi-engine-main
+        - name: vol-cm-biengine-templates
+          mountPath: /bi-engine-templates
+        - name: vol-cm-biengine-scripts
+          mountPath: /bi-engine-scripts
+        - name: vol-cm-biengine-copy
+          mountPath: /scripts
+      containers:
+      - name: bi-engine
+        image: {{ .Values.image.biengine }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8917
+        readinessProbe:
+          tcpSocket:
+            port: 8917
+          {{- include "probe" (list . "readiness" "biengine") | nindent 10 }}
+        livenessProbe:
+          tcpSocket:
+            port: 8917
+          {{- include "probe" (list . "liveness" "biengine") | nindent 10 }}
+        env:
+        - name: DEFAULT_TIME_ZONE
+          value: "{{ .Values.timezone }}"
+        - name: TZ
+          value: "{{ .Values.timezone }}"
+        volumeMounts:
+        - name: tz-{{ .Values.country }}
+          mountPath: /usr/share/zoneinfo/Asia/Dhaka
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-bi-report-dir
+          mountPath: /usr/share/nginx/html/analytics/file
+        - name: vol-logs-bi-engine
+          mountPath: {{ .Values.logs }}/bi-engineclear
+      volumes:
+      - name: tz-{{ .Values.country }}
+        hostPath:
+          path: /usr/share/zoneinfo/{{ .Values.timezone }}
+      - name: vol-cm-main
+        configMap:
+          name: cm-main
+      - name: vol-cm-biengine-main
+        configMap:
+          name: cm-biengine-main
+      - name: vol-cm-biengine-templates
+        configMap:
+          name: cm-biengine-templates
+      - name: vol-cm-biengine-scripts
+        configMap:
+          name: cm-biengine-scripts
+      - name: vol-logs-bi-engine
+        persistentVolumeClaim:
+          claimName: logs-bi-engine-{{ .Release.Namespace }}
+      - name: vol-bi-report-dir
+        persistentVolumeClaim:
+          claimName: bi-report-dir-{{ .Release.Namespace }}
+      - name: config-dir-main
+        emptyDir: {}
+      - name: vol-cm-biengine-copy
+        configMap:
+          name: cm-biengine-copy
+      imagePullSecrets:
+      - name: {{ .Values.secret }}

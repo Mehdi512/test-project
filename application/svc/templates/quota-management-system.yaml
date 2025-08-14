@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: quota-management
+  name: svc-quota-management
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - port: 9816
+    targetPort: 9816
+  selector:
+    app: quota-management
+  type: ClusterIP

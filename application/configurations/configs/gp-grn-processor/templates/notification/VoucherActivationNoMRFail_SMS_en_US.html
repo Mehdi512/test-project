@@ -1,0 +1,3 @@
+<html xmlns:th="http://www.thymeleaf.org" th:inline="text" th:remove="tag">
+Voucher activation NoMR failed: <span th:remove="tag" th:text="${'PO Number:' + templateData.voucherActivationItem.poNumber + ', Customer:' + templateData.voucherActivationItem.customer + ', product: ' + templateData.voucherActivationItem.productSKU + ', ' + templateData.voucherActivationItem.startSerial + '-' + templateData.voucherActivationItem.endSerial + ', activated: ' + templateData.activatedCount + ', tracking id:' + templateData.voucherActivationItem.trackingId + ', ' + #dates.format(templateData.date,'dd/MM/yyyy HH:mm:ss') }"></span>
+</html>

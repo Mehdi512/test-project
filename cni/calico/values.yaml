@@ -1,0 +1,17 @@
+
+## PRIVATE CONTAINER REGISTRY
+private_registry: false
+container_rgistry_url: docker.io/calico
+
+# PRIVATE CONTAINER REGISTRY LOGIN & SECRET
+imageCredentials:
+  registry: index.docker.io
+  username:
+  password:
+secret: private-registry-login
+
+## ALL CALICO IMAGES
+image:
+  cni: cni:v3.25.0
+  node: node:v3.25.0
+  controller: kube-controllers:v3.25.0

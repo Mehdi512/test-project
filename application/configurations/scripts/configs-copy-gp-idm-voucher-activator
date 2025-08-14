@@ -1,0 +1,12 @@
+#!/bin/bash
+
+mkdir -p /opt/seamless/conf/gp-idm-voucher-activator
+
+cp -L /main/* /opt/seamless/conf/
+cp -L /idm-voucher-activator-main/* /opt/seamless/conf/gp-idm-voucher-activator/
+
+
+# SEGREGATE REPLICA LOGS INTO SEPARATE DIRS
+REPLICA_NAME=`echo $HOSTNAME | sed -E 's/.*-//'`
+sed -i "s+/var/seamless/log/gp-idm-voucher-activator+/var/seamless/log/gp-idm-voucher-activator/gp-idm-voucher-activator/${REPLICA_NAME}+g" /opt/seamless/conf/gp-idm-voucher-activator/log4j.properties
+sed -i "s+/var/seamless/log/gp-idm-voucher-activator+/var/seamless/log/gp-idm-voucher-activator/gp-idm-voucher-activator/${REPLICA_NAME}+g" /opt/seamless/conf/gp-idm-voucher-activator/log4j2.xml

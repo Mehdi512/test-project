@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: idm-mfs-link
+  name: svc-idm-mfs-link
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - port: 15600
+    targetPort: 15600
+  selector:
+    app: idm-mfs-link
+  type: ClusterIP

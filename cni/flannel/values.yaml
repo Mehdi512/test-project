@@ -1,0 +1,16 @@
+
+## PRIVATE CONTAINER REGISTRY
+private_registry: false
+container_rgistry_url: ghcr.io/flannel-io
+
+# PRIVATE CONTAINER REGISTRY LOGIN & SECRET
+imageCredentials:
+  registry: index.docker.io
+  username:
+  password:
+secret: private-registry-login
+
+## ALL FLANNEL IMAGES
+image:
+  cni_plugin: flannel-cni-plugin:v1.6.2-flannel1
+  flannel: flannel:v0.26.4

@@ -1,0 +1,15 @@
+---
+apiVersion: v2
+name: rvm-kube-dashboard
+description: 'Kubernetes Dashboard Chart'
+version: 2.7.0
+appVersion: "2.7.0"
+keywords:
+  - unified
+  - dashboard
+home: https://seamless.se/
+sources:
+  - repolink
+maintainers:
+  - name: Khalid Mehmood
+    email: khalid.mehmood@seamless.se

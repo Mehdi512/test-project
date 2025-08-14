@@ -1,0 +1,1 @@
+ALTER TABLE `dwa_products` MODIFY `custom_parameters` varchar(1024) NOT NULL DEFAULT '';

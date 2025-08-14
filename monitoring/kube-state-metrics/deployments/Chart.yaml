@@ -1,0 +1,16 @@
+---
+apiVersion: v2
+name: rvm-monitoring
+description: 'Chart For Kube-State-Metrics Deployment'
+version: 2.53.4
+appVersion: "2.53.4"
+keywords:
+  - unified
+home: https://seamless.se/
+sources:
+  - repolink
+maintainers:
+  - name: Khalid Mehmood
+    email: khalid.mehmood@seamless.se
+  - name: Abdullah Cheema
+    email: abdullah.cheema@seamless.se

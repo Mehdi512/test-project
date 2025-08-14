@@ -1,0 +1,63 @@
+
+# LOGS
+logs: /var/seamless/log
+
+## Below Vars Will Change Storage Type Used For All Deployments
+# If Set To manual, Persistent Volumes Will Be Created Using HostPath Manual Storage
+# If You Have Storage Provided Via StorageClass, Set Below Var To storageclass
+storage_type: 'storageclass' # Select B/W manual/storageclass
+
+# If Above Var Set To storageclass, You Need To Specify Its Name Below
+storageclass_name: 'sample-storage-class' # manual For Manual, Specify If Any Other
+
+## STORAGE CAPACITY FOR EACH COMPONENT
+# Specify Their Sizes Accordinly
+storageCapacity:
+  accessmanagement: '200Mi'
+  accountmanagement: '200Mi'
+  accountlink: '200Mi'
+  alertapp: '200Mi'
+  batchscheduling: '200Mi'
+  biaggregator: '200Mi'
+  biengine: '200Mi'
+  bitdrexporter: '200Mi'
+  businesslogic: '200Mi'
+  cellsim: '200Mi'
+  contractmanagement: '200Mi'
+  coreproxy: '200Mi'
+  dealermanagement: '200Mi'
+  grnprocessor: '200Mi'
+  idmassetmanagement: '200Mi'
+  idmbprslink: '200Mi'
+  idmcimlink: '200Mi'
+  idmcmslink: '200Mi'
+  idmcockpitlink: '200Mi'
+  idmerplink: '200Mi'
+  idmerslink: '200Mi'
+  idmmfslink: '200Mi'
+  idmpollink: '200Mi'
+  idmvoucheractivator: '200Mi'
+  helperlink: '200Mi'
+  groupmanagement: '200Mi'
+  quotamanagement: '200Mi'
+  identitymanagement: '200Mi'
+  imsbridge: '200Mi'
+  inventorymanagement: '200Mi'
+  kyc: '200Mi'
+  ldaplink: '200Mi'
+  linksimulator: '200Mi'
+  nginx: '200Mi'
+  notificationmanager: '200Mi'
+  notificationui: '200Mi'
+  objectstore: '200Mi'
+  ordermanagement: '200Mi'
+  otpmanagement: '200Mi'
+  productmanagement: '200Mi'
+  referencegenerator: '200Mi'
+  regionmanagement: '200Mi'
+  templatemanagement: '200Mi'
+  apm_jar: '100Mi'
+
+
+#To monitor the load test via Opentelemetry you need to enable "jar_volume"
+jar_volume: false

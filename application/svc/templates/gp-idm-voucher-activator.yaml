@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: idm-voucher-activator
+  name: svc-idm-voucheractivator
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - port: 15910
+    targetPort: 15910
+  selector:
+    app: idm-voucher-activator
+  type: ClusterIP

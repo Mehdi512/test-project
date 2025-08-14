@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: bi-tdr-exporter
+  name: svc-bi-tdr-exporter
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - port: 8920
+    targetPort: 8920
+  selector:
+    app: bi-tdr-exporter
+  type: ClusterIP

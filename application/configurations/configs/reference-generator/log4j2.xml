@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+    <Properties>
+        <Property name="LOG_PATTERN">%d{ISO8601} [%t] [%X{correlationId}] %-5p [%c{1}] - %X{ersReference} %m%n</Property>
+        <Property name="APP_LOG_ROOT">/var/seamless/log/reference-generator</Property>
+        <Property name="APP_LOG_FILE_NAME">reference-generator.log</Property>
+        <Property name="MAX_FILE_SIZE">200MB</Property>
+        <Property name="MAX_FILES">30</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="LogToConsole" target="SYSTEM_OUT">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+        </Console>
+        
+        <RollingFile name="LogToFile"
+                     fileName="${APP_LOG_ROOT}/${APP_LOG_FILE_NAME}"
+                     filePattern="${APP_LOG_ROOT}/${APP_LOG_FILE_NAME}.%i.%d{yyyy-MM-dd}.gz"
+                     immediateFlush="true"
+                     append="true">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="${MAX_FILE_SIZE}" />
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <OnStartupTriggeringPolicy />
+            </Policies>
+            <DefaultRolloverStrategy max="${MAX_FILES}"/>
+        </RollingFile>
+
+        <RollingFile name="ErrorLogFile"
+                     fileName="${APP_LOG_ROOT}/error.log"
+                     filePattern="${APP_LOG_ROOT}/error.%i.%d{yyyy-MM-dd}.gz"
+                     immediateFlush="true"
+                     append="true">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="${MAX_FILE_SIZE}" />
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <OnStartupTriggeringPolicy />
+            </Policies>
+            <DefaultRolloverStrategy max="${MAX_FILES}"/>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="se.seamless" level="INFO" additivity="false">
+            <AppenderRef ref="LogToFile"/>
+            <AppenderRef ref="LogToConsole"/>
+        </Logger>
+
+        <Logger name="org.springframework.boot" level="INFO" additivity="false">
+            <AppenderRef ref="LogToConsole"/>
+            <AppenderRef ref="LogToFile"/>
+        </Logger>
+
+        <Logger name="SeamlessGenericModelImpl" level="INFO" additivity="false">
+            <AppenderRef ref="LogToConsole"/>
+            <AppenderRef ref="LogToFile"/>
+        </Logger>
+
+        <Logger name="org.hibernate" level="WARN" additivity="false">
+            <AppenderRef ref="LogToConsole"/>
+            <AppenderRef ref="LogToFile"/>
+        </Logger>
+
+        <Logger name="org.apache" level="WARN" additivity="false">
+            <AppenderRef ref="LogToConsole"/>
+            <AppenderRef ref="LogToFile"/>
+        </Logger>
+
+        <Logger name="com.zaxxer.hikari" level="WARN" additivity="false">
+            <AppenderRef ref="LogToConsole"/>
+            <AppenderRef ref="LogToFile"/>
+        </Logger>
+
+        <Logger name="ERROR" level="ERROR" additivity="false">
+            <AppenderRef ref="ErrorLogFile"/>
+        </Logger>
+
+        <Root level="INFO">
+            <AppenderRef ref="LogToFile"/>
+            <AppenderRef ref="LogToConsole"/>
+        </Root>
+    </Loggers>
+</Configuration> 

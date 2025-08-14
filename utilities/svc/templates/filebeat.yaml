@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: filebeat
+  name: svc-filebeat
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - port: 5045
+    targetPort: 5045
+  selector:
+    app: filebeat
+  type: ClusterIP

@@ -1,0 +1,94 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: access-management
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: access-management
+    egressTraffic: green
+spec:
+  replicas: {{ index .Values.replica.accessmanagement .Values.env }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge:  40%
+       maxUnavailable: 20%
+  selector:
+    matchLabels:
+      app: access-management
+  template:
+    metadata:
+      labels:
+        app: access-management
+    spec:
+      initContainers:
+      - name: copy-configs
+        image: {{ .Values.image.init_centos }}
+        imagePullPolicy: IfNotPresent
+        command: ['bash','/scripts/configs-copy']
+        volumeMounts:
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-cm-main
+          mountPath: /main
+        - name: vol-cm-access-management-main
+          mountPath: /access-management-main
+        - name: vol-cm-access-management-templates
+          mountPath: /access-management-templates
+        - name: vol-cm-access-management-audit-templates
+          mountPath: /access-management-audit-templates
+        - name: vol-cm-access-management-copy
+          mountPath: /scripts
+      containers:
+      - name: access-management
+        image: {{ .Values.image.accessmanagement }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8374
+        readinessProbe:
+          tcpSocket:
+            port: 8374
+          {{- include "probe" (list . "readiness" "accessmanagement") | nindent 10 }}
+        livenessProbe:
+          tcpSocket:
+            port: 8374
+          {{- include "probe" (list . "liveness" "accessmanagement") | nindent 10 }}
+        env:
+        - name: DEFAULT_TIME_ZONE
+          value: "{{ .Values.timezone }}"
+        - name: TZ
+          value: "{{ .Values.timezone }}"
+        volumeMounts:
+        - name: tz-{{ .Values.country }}
+          mountPath: /usr/share/zoneinfo/Asia/Dhaka
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-logs-access-management
+          mountPath: {{ .Values.logs }}/access-management-system
+      volumes:
+      - name: tz-{{ .Values.country }}
+        hostPath:
+          path: /usr/share/zoneinfo/{{ .Values.timezone }}
+      - name: vol-cm-main
+        configMap:
+          name: cm-main
+      - name: vol-cm-access-management-main
+        configMap:
+          name: cm-access-management-main
+      - name: vol-cm-access-management-templates
+        configMap:
+          name: cm-access-management-templates
+      - name: vol-cm-access-management-audit-templates
+        configMap:
+          name: cm-access-management-audit-templates
+      - name: vol-logs-access-management
+        persistentVolumeClaim:
+          claimName: logs-access-management-{{ .Release.Namespace }}
+      - name: config-dir-main
+        emptyDir: {}
+      - name: vol-cm-access-management-copy
+        configMap:
+          name: cm-access-management-copy
+      imagePullSecrets:
+      - name: {{ .Values.secret }}

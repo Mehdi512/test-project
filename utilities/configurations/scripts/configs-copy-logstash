@@ -1,0 +1,15 @@
+#!/bin/bash
+
+mkdir -p /opt/seamless/conf/logstash/{mapping,ruby,cert,jar}
+
+cp -L /main/* /opt/seamless/conf/
+cp -L /logstash-main/* /opt/seamless/conf/logstash/
+cp -L /logstash-mapping/* /opt/seamless/conf/logstash/mapping/
+cp -L /logstash-ruby/* /opt/seamless/conf/logstash/ruby/
+cp -L /logstash-cert/* /opt/seamless/conf/logstash/cert/
+cp -L /logstash-jar/* /opt/seamless/conf/logstash/jar/
+
+
+# SEGREGATE REPLICA LOGS INTO SEPARATE DIRS
+#REPLICA_NAME=`echo $HOSTNAME | sed -E 's/.*-//'`
+#sed -i "s+/var/seamless/log/logstash+/var/seamless/log/logstash/logstash/${REPLICA_NAME}+g" /opt/seamless/conf/logstash/log4j2.xml

@@ -1,0 +1,20 @@
+#!/bin/bash
+
+mkdir -p /opt/seamless/conf/batch-scheduling/
+mkdir /opt/seamless/conf/batch-scheduling/{templates,auditfeeder,datafeeder,notification,samples}
+mkdir /opt/seamless/conf/batch-scheduling/datafeeder/templates
+mkdir /opt/seamless/conf/batch-scheduling/auditfeeder/templates
+
+
+cp -L /main/* /opt/seamless/conf/
+cp -L /batch-scheduling-main/* /opt/seamless/conf/batch-scheduling/
+cp -L /batch-scheduling-templates/* /opt/seamless/conf/batch-scheduling/templates/
+cp -L /batch-scheduling-feeder/* /opt/seamless/conf/batch-scheduling/datafeeder/templates/
+cp -L /batch-scheduling-audit-feeder/* /opt/seamless/conf/batch-scheduling/auditfeeder/templates/
+cp -L /batch-scheduling-notifications/* /opt/seamless/conf/batch-scheduling/notification/
+cp -L /batch-scheduling-samples/* /opt/seamless/conf/batch-scheduling/samples/
+
+
+# SEGREGATE REPLICA LOGS INTO SEPARATE DIRS
+REPLICA_NAME=`echo $HOSTNAME | sed -E 's/.*-//'`
+sed -i "s+/var/seamless/log/batch-scheduling+/var/seamless/log/batch-scheduling/batch-scheduling/${REPLICA_NAME}+g" /opt/seamless/conf/batch-scheduling/log4j2.xml

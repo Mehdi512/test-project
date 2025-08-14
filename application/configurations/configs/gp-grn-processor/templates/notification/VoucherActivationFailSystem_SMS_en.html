@@ -1,0 +1,14 @@
+<html xmlns:th="http://www.thymeleaf.org" th:inline="text" th:remove="tag">
+<span th:remove="tag" th:unless="${#strings.isEmpty(templateData.scenario)}" th:text="'Status: ' + ${templateData.scenario}"></span>
+<div th:remove="tag" th:unless="${#lists.isEmpty(templateData.activationDataList)}">
+    <ul th:remove="tag" th:each="item : ${templateData.activationDataList}">
+        Voucher activation failed: <span th:remove="tag" th:text="${'PO Number:' + item.poNumber + ', Customer:' + item.owner + ', product: ' + item.productSKU + ', ' + item.startSerial + '-' + item.endSerial + ', ' + #dates.format(templateData.date,'dd/MM/yyyy HH:mm:ss') }"></span>
+    </ul>
+</div>
+<div th:remove="tag" th:unless="${#lists.isEmpty(templateData.voucherActivationItemList)}">
+    <ul th:remove="tag" th:each="item : ${templateData.voucherActivationItemList}">
+        Voucher activation failed: <span th:remove="tag" th:text="${'PO Number:' + item.poNumber + ', Customer:' + item.customer + ', product: ' + item.productSKU + ', ' + item.startSerial + '-' + item.endSerial + ', tracking id:' + templateData.voucherActivationItem.trackingId + ', ' + #dates.format(templateData.date,'dd/MM/yyyy HH:mm:ss') }"></span>
+    </ul>
+</div>
+
+</html>

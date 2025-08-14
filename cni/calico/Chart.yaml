@@ -1,0 +1,15 @@
+---
+apiVersion: v2
+name: rvm-cni
+description: 'Offline Chart For CNI: Calico'
+version: 3.25.0
+appVersion: "3.25.0"
+keywords:
+  - cni
+  - calico
+home: https://seamless.se/
+sources:
+  - repolink
+maintainers:
+  - name: Khalid Mehmood
+    email: khalid.mehmood@seamless.se

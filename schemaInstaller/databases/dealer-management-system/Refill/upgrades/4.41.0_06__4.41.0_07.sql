@@ -1,0 +1,8 @@
+REPLACE INTO Refill.resources values
+('?(Astd)/?(*)/?(OUTConfirmSupportTransfer)/group(CompleteGroup)/w(Window)/langmap(StringResource)','confirm_transfer=Confirm manual adjustment\r\nsender_reseller=Sender\r\nreceiver_reseller=Receiver\r\nreseller_id=Reseller id\r\nreseller_name=Reseller name\r\nreseller_type=Reseller type\r\nfrom_account_type=Transfer from account\r\nto_account_type=Transfer to account\r\ntransfer_amount=Amount\r\ncomment=Comment','2011-06-08 15:37:19','?(RefillAdmin)','2011-06-08 15:43:31','2011-06-08 15:47:37','2011-06-08 15:47:37'),
+('?(Astd)/?(*)/?(OUTDefineSupportTransfer)/group(CompleteGroup)/w(Window)/langmap(StringResource)','support_transfers=Create new manual adjustment\r\nsender_reseller=Sender reseller\r\nreceiver_reseller=Receiver reseller\r\naccount_type=Account type\r\ntransfer_amount=Amount\r\ncomment=Comment','2011-06-08 15:35:29','?(RefillAdmin)','2011-06-08 15:43:31','2011-06-08 15:47:26','2011-06-08 15:47:26'),
+('?(Len)/?(*)/?(StaticMenu)/?(FlowControl)/?(StaticMenu)/support_transfers(FlowControl)/w_enabled(Window)/langmap(StringResource)','msg=Manual adjustments','2011-06-02 11:42:13','?(RefillAdmin)',NULL,NULL,'2011-06-02 11:42:13'),
+('?(Len)/?(*)/?(StaticMenu)/support_transfers(FlowControl)/w_disabled(Window)/langmap(StringResource)','msg=Manual adjustment','2011-06-02 11:45:22','?(RefillAdmin)','2011-06-02 11:36:25','2011-06-02 11:45:22','2011-06-02 11:45:22');
+
+REPLACE INTO Refill.id_scenarios values
+(297,'Manual adjustment','Manual adjustment','Support',NOW(),3);

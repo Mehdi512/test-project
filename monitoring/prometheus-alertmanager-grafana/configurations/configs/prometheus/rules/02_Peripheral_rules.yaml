@@ -1,0 +1,57 @@
+groups:
+  - name: ops-peripheral-alert
+    rules:
+    - alert: kannel-down 
+      expr: absent(kube_deployment_status_replicas{deployment="kannel",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: 'kannel  is Down.' 
+      for: 15s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical 
+    - alert: logstash-down 
+      expr: absent(kube_deployment_status_replicas{deployment="logstash",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: ' logstash  is Down.'
+      for: 15s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical
+    - alert: minio-down
+      expr: absent(kube_deployment_status_replicas{deployment="minio",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: 'minio  is Down.' 
+      for: 15s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical 
+    - alert: redis-down
+      expr: absent(kube_statefulset_replicas{statefulset="redis",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: 'redis  is Down.' 
+      for: 15s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical 
+    - alert: kafka-down
+      expr: absent(kube_deployment_status_replicas{deployment="kafka",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: 'kafka  is Down.' 
+      for: 15s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical 
+    - alert: rabbitmq-down
+      expr: absent(kube_deployment_status_replicas{deployment="rabbitmq",namespace="ops"})
+      annotations:
+        summary: Service missing  {{ .deployment }}
+        message: 'rabbitmq  is Down.' 
+      for: 15s
+      labels:
+        service: "{{ .deployment }}-Service"
+        severity: critical         

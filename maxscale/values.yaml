@@ -1,0 +1,25 @@
+# Default values for maxscale.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replica: 2
+
+image: mariadb/maxscale:24.02.3
+
+
+## Add IPs Of Both Primary/Replica Nodes Below
+dbs:
+  primary: '10.33.96.112'
+  replica: '10.33.96.113'
+
+
+## Below Vars Will Change Storage Type Used For All Deployments
+# If Set To manual, Persistent Volumes Will Be Created Using HostPath Manual Storage
+# If You Have Storage Provided Via StorageClass, Set Below Var To storageclass
+storage_type: 'storageclass' # Select B/W manual/storageclass
+
+# If Above Var Set To storageclass, You Need To Specify Its Name Below
+storageclass_name: 'sample-storage-class' # manual For Manual, Specify If Any Other
+
+maxscale_db_user: replicate
+maxscale_db_user_pass: replicate

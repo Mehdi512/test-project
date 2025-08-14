@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Tax Invoice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            font-size: 12px;
+        }
+        .header {
+            background-color: #ADD8E6;
+            padding: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 1px solid black;
+            position: relative;
+        }
+
+        .header h2,
+        .header h3 {
+            margin: 5px 0;
+        }
+
+        .logo {
+            width: 150px;
+            margin-bottom: 10px;
+            justify-content: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+
+        th,
+        td {
+            border: 1px solid black;
+            padding: 4px 8px;
+            text-align: left;
+            font-size: 11px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: normal;
+        }
+
+        .details-table td {
+            border: none;
+            padding: 2px 8px;
+        }
+
+        .product-table th,
+        .product-table td {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .product-table td.description {
+            text-align: left;
+        }
+
+        .payment-details table {
+            width: auto;
+            min-width: 300px;
+        }
+
+        .payment-details td {
+            padding: 2px 8px;
+        }
+
+        .footer p {
+            margin: 3px 0;
+        }
+
+        .total-row td {
+            font-weight: bold;
+            background-color: #f9f9f9;
+        }
+
+        .left-section {
+            width: 70%;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .italic {
+            font-style: italic;
+        }
+
+        .bordered-table td,
+        .bordered-table th {
+            border: 1px solid black;
+            padding: 5px;
+        }
+
+        .borderless-table td,
+        .borderless-table th {
+            border: none;
+            text-align: center;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .right {
+            text-align: right;
+        }
+
+        .title-section {
+            text-align: center;
+            font-size: 11px;
+            line-height: 1.3;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <table class="borderless-table title-section">
+        <tr>
+            <td colspan="3">
+                <div>The Government of the People's Republic of Bangladesh</div>
+                <div>National Board of Revenue</div>
+                <div>Tax Invoice: [Rule 40(1) (C&amp;F)]</div>
+            </td>
+            <td class="logo" rowspan="3" style="text-align: center">
+                <img th:src="'data:image/png;base64,' + ${base64Logo}" alt="Grameenphone" style="height: 50px; text-align: center"/><br/>
+                <strong>Grameenphone</strong>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div th:with="data=${invoice.invoiceData != null} ? ${invoice.invoiceData} : ${T(java.util.Collections).emptyMap()}">
+    <table>
+        <tr><td class="left-section"><strong>Invoice No:</strong> <span th:text="${invoice.invoiceId}"></span></td></tr>
+        <tr><td class="left-section"><strong>Issue Date &amp; time:</strong> <span th:text="${data['txnDateTime']} ?: ''"></span></td></tr>
+        <tr><td class="left-section"><strong>Challan Number:</strong> <span th:text="${data['challanNumber']} ?: ''"></span></td></tr>
+    </table>
+
+    <table>
+        <tr>
+            <th colspan="2"><h3><strong>Details of Registered Person</strong></h3></th>
+            <th colspan="2"><h3><strong>Name of the Purchaser</strong></h3></th>
+        </tr>
+        <tr>
+            <td><strong>Name :</strong></td>
+            <td>Grameenphone Limited</td>
+            <td><strong>Name :</strong></td>
+            <td><span th:text="${data['customerName']} ?: ''"></span></td>
+        </tr>
+        <tr>
+            <td><strong>BIN Number:</strong></td>
+            <td>000000081-0001</td>
+            <td><strong>Phone No.:</strong></td>
+            <td><span th:text="${data['customerMsisdn']} ?: ''"></span></td>
+        </tr>
+        <tr>
+            <td><strong>Address:</strong></td>
+            <td>GP House, Bashundhara, Baridhara, Dhaka 1229.</td>
+            <td><strong>BIN Number (If Applicable)</strong></td>
+            <td><span th:text="${data['binNumber']} ?: ''"></span></td>
+        </tr>
+        <tr>
+            <td><strong>Manager Name:</strong></td>
+            <td><span th:text="${data['userName']} ?: ''"></span></td>
+            <td><strong>Email ID:</strong></td>
+            <td><span th:text="${data['customerEmailId']} ?: ''"></span></td>
+        </tr>
+    </table>
+</div>
+
+<table class="product-table" th:with="data=${invoice.invoiceData != null} ? ${invoice.invoiceData} : ${T(java.util.Collections).emptyMap()}">
+    <thead>
+    <tr>
+        <th style="width: 30px;">Sl#</th>
+        <th style="width: 200px;">Item/Description</th>
+        <th style="width: 60px;">Quantity</th>
+        <th style="width: 80px;">MRP</th>
+        <th style="width: 100px;">Serial No</th>
+        <th style="width: 100px;">Mobile Number</th>
+        <th style="width: 100px;">Total Amount Ex duties (In Taka)</th>
+        <th style="width: 80px;">Total Discount</th>
+        <th style="width: 120px;">Total Amount Include All Duties &amp; Taxes</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="entry, iterStat : ${invoice.invoiceEntryList}" th:with="data=${entry.invoiceEntryData != null} ? ${entry.invoiceEntryData} : ${T(java.util.Collections).emptyMap()}">
+        <td th:text="${iterStat.count}"></td>
+        <td class="description">
+            <span th:text="${entry.productName}"></span><br/>
+            SD Rate:
+            <span th:if="${#lists.size(entry.taxDetails.?[taxType == 'SD']) > 0}">
+                <span th:if="${entry.taxDetails.?[taxType == 'SD'][0].percentValue != null}"
+                      th:text="${entry.taxDetails.?[taxType == 'SD'][0].percentValue + '%'}"></span>
+                <span th:if="${entry.taxDetails.?[taxType == 'SD'][0].percentValue == null}"
+                      th:text="${entry.taxDetails.?[taxType == 'SD'][0].fixedValue}"></span>
+            </span>
+            <span th:if="${#lists.size(entry.taxDetails.?[taxType == 'SD']) == 0}"></span>
+            <br/>
+            SD Amount (TK): <span th:text="${#lists.size(entry.taxDetails.?[taxType == 'SD']) > 0 ? entry.taxDetails.?[taxType == 'SD'][0].taxValue : ''}"></span><br/>
+            VAT Rate:
+            <span th:if="${#lists.size(entry.taxDetails.?[taxType == 'VAT']) > 0}">
+                <span th:if="${entry.taxDetails.?[taxType == 'VAT'][0].percentValue != null}"
+                      th:text="${entry.taxDetails.?[taxType == 'VAT'][0].percentValue + '%'}"></span>
+                <span th:if="${entry.taxDetails.?[taxType == 'VAT'][0].percentValue == null}"
+                      th:text="${entry.taxDetails.?[taxType == 'VAT'][0].fixedValue}"></span>
+            </span>
+            <span th:if="${#lists.size(entry.taxDetails.?[taxType == 'VAT']) == 0}"></span>
+            <br/>
+            VAT Amount (TK): <span th:text="${#lists.size(entry.taxDetails.?[taxType == 'VAT']) > 0 ? entry.taxDetails.?[taxType == 'VAT'][0].taxValue : ''}"></span><br/>
+            Surcharge Amount (TK): <span th:text="${#lists.size(entry.taxDetails.?[taxType == 'SC']) > 0 ? entry.taxDetails.?[taxType == 'SC'][0].taxValue : ''}"></span>
+        </td>
+        <td th:text="${data['quantity'] != null ? data['quantity'] : entry.uom.quantity}"></td>
+        <td th:text="${#numbers.formatDecimal(entry.unitPrice.amount, 1, 2)}"></td>
+        <td style="padding: 0; margin: 0;">
+            <table style="border-collapse: collapse; width: 100%;">
+                <tr th:each="serial, iterStat : ${#strings.arraySplit(data['serials'] != null ? data['serials'] : '', ',')}">
+                    <td style="border: none; padding: 0; text-align: center;" th:text="${serial}"></td>
+                </tr>
+            </table>
+        </td>
+        <td style="padding: 0; margin: 0;">
+            <table style="border-collapse: collapse; width: 100%;">
+                <tr th:each="ref, iterStat : ${#strings.arraySplit(data['references'] != null ? data['references'] : '', ',')}">
+                    <td style="border: none; padding: 0; text-align: center;" th:text="${ref}"></td>
+                </tr>
+            </table>
+        </td>
+        <td th:text="${#numbers.formatDecimal(entry.totalPrice.amount - entry.calculatedTax.amount, 1, 2)}"></td>
+        <td th:text="${#numbers.formatDecimal((entry.discount.amount ?: 0), 1, 2)}"></td>
+        <td th:text="${#numbers.formatDecimal((entry.totalPrice.amount ?: T(java.math.BigDecimal).ZERO)
+                                       .subtract(entry.discount.amount ?: T(java.math.BigDecimal).ZERO), 1, 2)}">
+        </td>
+
+
+    </tr>
+    <tr class="total-row">
+        <td colspan="2">Total</td>
+        <td th:text="${#aggregates.sum(
+                invoice.invoiceEntryList.![
+                    invoiceEntryData != null and invoiceEntryData['quantity'] != null ?
+                    new java.math.BigDecimal(invoiceEntryData['quantity']) :
+                    uom.quantity
+                ]
+            )}">
+        </td>
+        <td style="text-align: right" colspan="4"
+            th:text="${#numbers.formatDecimal(#aggregates.sum(invoice.invoiceEntryList.![totalPrice.amount - calculatedTax.amount]), 1, 2)}">
+        </td>
+        <td th:text="${#numbers.formatDecimal(#aggregates.sum(invoice.invoiceEntryList.![discount.amount]), 1, 2)}"></td>
+        <td></td>
+    </tr>
+    </tbody>
+</table>
+
+
+<table>
+    <tr>
+        <td colspan="2">
+            <p class="italic bold">Payment Mode:</p>
+            <p th:each="payment : ${invoice.paymentsInfo}">
+                <span th:text="${payment.paymentMode + ': ' + #numbers.formatDecimal(payment.amount, 1, 2)}"></span>
+            </p>
+        </td>
+        <td style="text-align: center" th:text="${T(com.seamless.oms.utility.NumberToWords).convertToWords(#aggregates.sum(invoice.invoiceEntryList.![netPrice.amount]), 'Taka', 'Paisa')} + ' Only'"></td>
+        <td><strong>Total Amount in Taka:</strong></td>
+        <td th:text="${#numbers.formatDecimal(#aggregates.sum(invoice.invoiceEntryList.![netPrice.amount]), 1, 2)}"></td>
+    </tr>
+
+    <tr>
+        <td colspan="3"><span class="italic center">
+            Grameenphone Ltd. is a telephone service provider company. As per VAT Deduction at Source guideline, VAT deduction is not applicable for Telephone Services
+        </span></td>
+        <td colspan="2"><span class="italic center">
+            This is a computer generated receipt, no signature is required <br/>
+            VAT, SD &amp; SURCHARGE PAID WHERE APPLICABLE <br/>
+            Visit - www.grameenphone.com
+        </span></td>
+    </tr>
+
+    <tr>
+        <td class="center bold" colspan="5"><h3><strong>Thank you for shopping with us</strong></h3></td>
+    </tr>
+</table>
+</body>
+</html>

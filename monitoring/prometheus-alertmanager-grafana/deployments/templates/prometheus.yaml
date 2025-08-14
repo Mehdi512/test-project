@@ -1,0 +1,99 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-prometheus-{{ .Release.Namespace }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ .Values.storageCapacity.prometheus }}
+{{- if eq .Values.storage_type "manual" }}
+  selector:
+    matchLabels:
+      type: local
+      name: data-prometheus-{{ .Release.Namespace }}
+{{- end }}
+  storageClassName: {{ .Values.storageclass_name }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: prometheus
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+    spec:
+{{- if eq .Values.private_registry true }}
+      imagePullSecrets:
+      - name: {{ .Values.secret }}
+{{- end }}
+      containers:
+      - name: prometheus
+        image: {{ .Values.prometheus_container_rgistry_url }}/{{ .Values.image.prometheus }}
+        imagePullPolicy: IfNotPresent
+        args:
+        - '--storage.tsdb.retention=12d'
+        - '--storage.tsdb.path=/var/seamless/log/prometheus'
+        - '--config.file=/etc/prometheus/prometheus.yml'
+        ports:
+        - name: web
+          containerPort: 9090
+        resources:
+          {{- include "resources.prometheus" . | nindent 10 }}
+        volumeMounts:
+        - name: vol-cm-prometheus-main
+          mountPath: /etc/prometheus
+        - name: vol-cm-prometheus-rules
+          mountPath: /etc/prometheus/rules
+        - name: vol-data-prometheus-{{ .Release.Namespace }}
+          mountPath: /var/seamless/log/prometheus
+      restartPolicy: Always
+      volumes:
+      - name: vol-cm-prometheus-main
+        configMap:
+          defaultMode: 420
+          name: cm-prometheus-main
+      - name: vol-cm-prometheus-rules
+        configMap:
+          defaultMode: 420
+          name: cm-prometheus-rules
+      - name: vol-data-prometheus-{{ .Release.Namespace }}
+        persistentVolumeClaim:
+          claimName: data-prometheus-{{ .Release.Namespace }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: svc-prometheus
+    namespace: {{ .Release.Namespace }}
+    annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port:   '9090'
+spec:
+    selector:
+        app: prometheus
+    type: NodePort
+    ports:
+    - port: 8080
+      targetPort: 9090
+      nodePort: 30909

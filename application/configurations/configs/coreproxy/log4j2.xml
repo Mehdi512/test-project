@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="ERROR">
+    <Properties>
+        <Property name="LOG_PATTERN">%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ} %p %m%n</Property>
+        <Property name="APP_LOG_ROOT">/var/seamless/log/coreproxy</Property>
+    </Properties>
+    <Appenders>
+<!--
+        <File name="Log4j2PropertiesConfig" fileName="${APP_LOG_ROOT}/coreproxy.log">
+            <PatternLayout>
+                <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
+            </PatternLayout>
+        </File>
+        <RollingFile name="Log4j2PropertiesConfig" fileName="${APP_LOG_ROOT}/coreproxy.log"
+                        filePattern="${APP_LOG_ROOT}/coreproxy.log.%d{yyyy-MM-dd}">
+               <PatternLayout>
+                      <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
+               </PatternLayout>
+       	<TimeBasedTriggeringPolicy />
+        </RollingFile>
+-->
+                  <RollingFile name="Log4j2PropertiesConfig"
+                             fileName="${APP_LOG_ROOT}/coreproxy.log"
+                             filePattern="${APP_LOG_ROOT}/coreproxy.log.%i.%d{dd-MM-yyyy-HH-mm-ss}.gz"
+                             immediateFlush="true">
+                             <PatternLayout>
+                             <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
+                             </PatternLayout>
+                        <Policies>
+                                <SizeBasedTriggeringPolicy size="200 MB" />
+                        </Policies>
+                        <DefaultRolloverStrategy />
+                </RollingFile>
+
+        <Console name="LogToConsole" target="SYSTEM_OUT">
+             <PatternLayout>
+                <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
+            </PatternLayout>
+        </Console>
+
+    </Appenders>
+    <Loggers>
+        <!-- avoid duplicated logs with additivity=false -->
+        <Logger name="com.seamless" level="ERROR">
+            <AppenderRef ref="Log4j2PropertiesConfig"/>
+        </Logger>
+        <Logger name="se.seamless" level="ERROR">
+            <AppenderRef ref="LogToConsole"/>
+	    <AppenderRef ref="Log4j2PropertiesConfig"/>
+        </Logger>
+
+        <Root level="error">
+            <AppenderRef ref="LogToFile"/>
+        </Root>
+        <Root level="ERROR">
+            <AppenderRef ref="Log4j2PropertiesConfig"/>
+            <AppenderRef ref="LogToConsole"/>
+        </Root>
+    </Loggers>
+</Configuration>

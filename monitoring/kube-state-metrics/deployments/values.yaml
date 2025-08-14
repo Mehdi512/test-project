@@ -1,0 +1,8 @@
+
+## PRIVATE CONTAINER REGISTRY
+private_registry: false
+metrics_container_rgistry_url: k8s.gcr.io/kube-state-metrics
+
+## ALL PROMETHEUS IMAGES
+image:
+  kubemetric: kube-state-metrics:v2.3.0

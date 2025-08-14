@@ -1,0 +1,104 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quota-management
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: quota-management
+    egressTraffic: green
+spec:
+  replicas: {{ index .Values.replica.quotamanagement .Values.env }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge:  40%
+       maxUnavailable: 20%
+  selector:
+    matchLabels:
+      app: quota-management
+  template:
+    metadata:
+      labels:
+        app: quota-management
+    spec:
+      initContainers:
+      - name: copy-configs
+        image: {{ .Values.image.init_centos }}
+        imagePullPolicy: IfNotPresent
+        command: ['bash','/scripts/configs-copy']
+        env:
+        - name: NAMESPACE
+          value: "{{ .Release.Namespace }}"
+        - name: NAMESPACE_LOGS
+          value: "{{ .Release.Namespace_logs_enabled }}"
+        volumeMounts:
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-cm-main
+          mountPath: /main
+        - name: vol-cm-quota-management-main
+          mountPath: /quota-management-main
+        - name: vol-cm-quota-management-audit
+          mountPath: /quota-management-audit
+        - name: vol-cm-quota-management-tdr
+          mountPath: /quota-management-tdr
+        - name: vol-cm-quota-management-notification
+          mountPath: /quota-management-notification
+        - name: vol-cm-quota-management-copy
+          mountPath: /scripts
+      containers:
+      - name: quota-management
+        image: {{ .Values.image.quotamanagement }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9816
+        readinessProbe:
+          tcpSocket:
+            port: 9816
+          {{- include "probe" (list . "readiness" "quotamanagement") | nindent 10 }}
+        livenessProbe:
+          tcpSocket:
+            port: 9816
+          {{- include "probe" (list . "liveness" "quotamanagement") | nindent 10 }}
+        env:
+        - name: DEFAULT_TIME_ZONE
+          value: "{{ .Values.timezone }}"
+        - name: TZ
+          value: "{{ .Values.timezone }}"
+        volumeMounts:
+        - name: tz-{{ .Values.country }}
+          mountPath: /usr/share/zoneinfo/Asia/Dhaka
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-logs-quota-management
+          mountPath: {{ .Values.logs }}/quota-management-system
+      volumes:
+      - name: tz-{{ .Values.country }}
+        hostPath:
+          path: /usr/share/zoneinfo/{{ .Values.timezone }}
+      - name: vol-cm-main
+        configMap:
+          name: cm-main
+      - name: vol-cm-quota-management-main
+        configMap:
+          name: cm-quota-management-main
+      - name: vol-cm-quota-management-audit
+        configMap:
+          name: cm-quota-management-audit
+      - name: vol-cm-quota-management-tdr
+        configMap:
+          name: cm-quota-management-tdr
+      - name: vol-cm-quota-management-notification
+        configMap:
+          name: cm-quota-management-notification
+      - name: vol-logs-quota-management
+        persistentVolumeClaim:
+          claimName: logs-quota-management-{{ .Release.Namespace }}
+      - name: config-dir-main
+        emptyDir: {}
+      - name: vol-cm-quota-management-copy
+        configMap:
+          name: cm-quota-management-copy
+      imagePullSecrets:
+      - name: {{ .Values.secret }}

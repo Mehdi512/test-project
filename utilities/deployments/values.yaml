@@ -1,0 +1,91 @@
+## MULTI NAMESPACE-BASED LOGS, RECOMMENDED IF ENGINEERS WANT TO RUN MULTIPLE ENVIRONMENT ON SAME CLUSTER
+## IN DIFFERENT NAMESPACE, NORMALLY SET IT TO FALSE
+Namespace_logs_enabled: false
+
+# DOCKER-REGISTRY SECRET
+secret: docker-repo-login
+
+# COUNTRY & TIMEZONE
+timezone: Asia/Dhaka
+country: bangladesh
+
+
+# MINIO
+HOST__minio_accesskey: refill
+HOST__minio_secretkey: seamless
+
+# CONF
+conf: /opt/seamless/conf
+
+# LOGS
+logs: /var/seamless/log
+
+
+## PRIVATE CONTAINER REGISTRY
+private_registry: true
+
+# DOCKER IMAGE
+image:
+  init_centos: sdsdockerhub/seamless-centos
+  kafka: sdshubdocker/kafka:latest-vfo
+  minio: sdsdockerhub/minio:latest
+  filebeat: elastic/filebeat:8.6.0
+  kannel: sdsdockerhub/gp-kannel-test-nonroot:latest
+  logstash: sdsdockerhub/logstash:8.1.2
+  rabbitmq: sdsdockerhub/rabbitmq-ubp:3.10.7
+  redis: redis:6.2.3-alpine
+
+
+## ENVIRONMENT VAR IS VERY CRITICAL.
+# It Will Be Used To Decide ReplicaCounts/ResourceAllocation Of All Components.
+# Based On Value Of env Var, ReplicaCounts/ResourceAllocation Will Be Picked
+# From Values Defined In This Values File.
+# NOTE: Keep Redis ReplicaCounts 1, In All Env
+
+env: 'staging' # Select B/W staging/preproduction/production
+
+## Define ReplicaCounts Of All Commponents For Both Staging/Production Env
+replica:
+  kafka:
+    staging: 1
+    preproduction: 2
+    production: 2
+  minio:
+    staging: 1
+    preproduction: 2
+    production: 2
+  kannel:
+    staging: 1
+    preproduction: 2
+    production: 2
+  logstash:
+    staging: 1
+    preproduction: 2
+    production: 2
+  rabbitmq:
+    staging: 1
+    preproduction: 2
+    production: 2
+  redis:
+    staging: 1
+    preproduction: 1
+    production: 1
+
+storageclass_name: 'sample-storage-class'
+
+
+
+
+## READINESS/LIVENESS PROBES
+probesDefault:
+  readiness_initialDelaySeconds: 60
+  readiness_periodSeconds: 20
+  liveness_initialDelaySeconds: 60
+  liveness_periodSeconds: 40
+
+probesOverride:
+  accessmanagement:
+    readiness_initialDelaySeconds: 35
+#     readiness_periodSeconds: 25
+#     liveness_initialDelaySeconds: 30
+#     liveness_periodSeconds: 35

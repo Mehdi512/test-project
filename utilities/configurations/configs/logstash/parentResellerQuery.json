@@ -1,0 +1,1 @@
+{ "query": { "term": { "dms.resellerInfo.reseller.resellerId.keyword": "%{[dms.resellerInfo.reseller.parentResellerId]}" } }, "_source": ["dms.resellerInfo.reseller.resellerMSISDN"], "size": 1 }

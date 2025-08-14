@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: bi-engine
+  name: svc-bi-engine
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - port: 8917
+    targetPort: 8917
+  selector:
+    app: bi-engine
+  type: ClusterIP

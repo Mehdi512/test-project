@@ -1,0 +1,94 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-management
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: product-management
+    egressTraffic: green
+spec:
+  replicas: {{ index .Values.replica.productmanagement .Values.env }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge:  40%
+       maxUnavailable: 20%
+  selector:
+    matchLabels:
+      app: product-management
+  template:
+    metadata:
+      labels:
+        app: product-management
+    spec:
+      initContainers:
+      - name: copy-configs
+        image: {{ .Values.image.init_centos }}
+        imagePullPolicy: IfNotPresent
+        command: ['bash','/scripts/configs-copy']
+        volumeMounts:
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-cm-main
+          mountPath: /main
+        - name: vol-cm-product-management-main
+          mountPath: /product-management-main
+        - name: vol-cm-product-management-audit
+          mountPath: /product-management-audit
+        - name: vol-cm-product-management-tdr
+          mountPath: /product-management-tdr
+        - name: vol-cm-product-management-copy
+          mountPath: /scripts
+      containers:
+      - name: product-management
+        image: {{ .Values.image.productmanagement }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8012
+        readinessProbe:
+          tcpSocket:
+            port: 8012
+          {{- include "probe" (list . "readiness" "productmanagement") | nindent 10 }}
+        livenessProbe:
+          tcpSocket:
+            port: 8012
+          {{- include "probe" (list . "liveness" "productmanagement") | nindent 10 }}
+        env:
+        - name: DEFAULT_TIME_ZONE
+          value: "{{ .Values.timezone }}"
+        - name: TZ
+          value: "{{ .Values.timezone }}"
+        volumeMounts:
+        - name: tz-{{ .Values.country }}
+          mountPath: /usr/share/zoneinfo/Asia/Dhaka
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-logs-product-management
+          mountPath: {{ .Values.logs }}/product-management
+      volumes:
+      - name: tz-{{ .Values.country }}
+        hostPath:
+          path: /usr/share/zoneinfo/{{ .Values.timezone }}
+      - name: vol-cm-main
+        configMap:
+          name: cm-main
+      - name: vol-cm-product-management-main
+        configMap:
+          name: cm-product-management-main
+      - name: vol-cm-product-management-audit
+        configMap:
+          name: cm-product-management-audit
+      - name: vol-cm-product-management-tdr
+        configMap:
+          name: cm-product-management-tdr
+      - name: vol-logs-product-management
+        persistentVolumeClaim:
+          claimName: logs-product-management-{{ .Release.Namespace }}
+      - name: config-dir-main
+        emptyDir: {}
+      - name: vol-cm-product-management-copy
+        configMap:
+          name: cm-product-management-copy
+      imagePullSecrets:
+      - name: {{ .Values.secret }}

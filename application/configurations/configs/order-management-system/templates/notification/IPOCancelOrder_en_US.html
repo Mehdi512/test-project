@@ -1,0 +1,3 @@
+<html xmlns:th="http://www.thymeleaf.org" th:inline="text" th:remove="tag">
+<span th:remove="tag" th:text="'Cancel PO: ' + ${transaction.buyer.id} + ', ' + ${transaction.orderId} + ', ' + ${transaction.paymentAgreement} + ' '"></span><div th:remove="tag" th:each="field : ${transaction.additionalFields}" style="display: inline;"><span th:remove="tag" th:if="${field.name == 'totalAmount'}" th:text="${#numbers.formatDecimal(field.value,1,4)}"></span></div><span th:remove="tag" th:if="${transaction.orderCollection.orderItemList}" th:text="', ' + ${#strings.listJoin(transaction.orderCollection.orderItemList.![#strings.listSplit(product.categoryPath,'/')[1] + ' ' + quantity.quantity], ', ')}"></span>
+</html>

@@ -1,0 +1,1 @@
+UPDATE extdev_classes SET default_user_id='9900' WHERE id='Phone';

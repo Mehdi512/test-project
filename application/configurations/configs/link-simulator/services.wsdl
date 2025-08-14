@@ -1,0 +1,298 @@
+<?xml version='1.0' encoding='UTF-8'?><wsdl:definitions name="PodService" targetNamespace="http://www.paysafecard.com/enterprise/distribution/podService/v1" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://www.paysafecard.com/enterprise/distribution/podService/v1" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<wsdl:documentation>Version: 1.0.0</wsdl:documentation>
+<wsdl:types>
+<xsd:schema targetNamespace="http://www.paysafecard.com/enterprise/distribution/podService/v1"
+xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://www.paysafecard.com/enterprise/distribution/podService/v1"
+xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<xsd:element name="executeOrder">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element name="username" type="tns:usernameType">
+</xsd:element>
+<xsd:element name="password" type="tns:passwordType">
+</xsd:element>
+<xsd:element minOccurs="0" name="retailerId" type="tns:retailerIdType">
+</xsd:element>
+<xsd:element minOccurs="0" name="shopId" type="tns:shopIdType">
+</xsd:element>
+<xsd:element name="terminalId" type="tns:terminalIdType">
+</xsd:element>
+<xsd:element name="customerIdType" type="tns:customerIdTypeEnum">
+</xsd:element>
+<xsd:element minOccurs="0" name="customerId" type="tns:customerIdType">
+</xsd:element>
+<xsd:element name="deliveryType" type="tns:deliveryType">
+</xsd:element>
+<xsd:element name="utcOffset" type="tns:utcOffsetType">
+</xsd:element>
+<xsd:element name="orderId" type="tns:orderIdType">
+</xsd:element>
+<xsd:element name="countryCode" type="tns:countryCodeType">
+</xsd:element>
+<xsd:element name="faceValue" type="tns:faceValueType">
+</xsd:element>
+<xsd:element name="currencyCode" type="tns:currencyCodeType">
+</xsd:element>
+<xsd:element name="productId" type="tns:productIdType">
+  </xsd:element>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:complexType name="executeOrderReturnType">
+<xsd:sequence>
+<xsd:element name="resultCode" type="tns:resultCodeType">
+</xsd:element>
+<xsd:element name="errorCode" type="tns:errorCodeType">
+</xsd:element>
+<xsd:element minOccurs="0" name="errorCodeDescription" type="tns:errorCodeDescriptionType"> </xsd:element>
+<xsd:element minOccurs="0" name="distributorId" type="tns:distributorIdType" /> <xsd:element name="orderId" type="tns:orderIdType">
+</xsd:element>
+<xsd:element minOccurs="0" name="serialNumber" type="tns:serialNumberType">
+</xsd:element>
+<xsd:element minOccurs="0" name="pin" type="tns:pinType">
+</xsd:element>
+</xsd:sequence> </xsd:complexType>
+<xsd:element name="cancelOrder">
+<xsd:complexType>
+  <xsd:sequence>
+<xsd:element name="username" type="tns:usernameType"> </xsd:element>
+<xsd:element name="password" type="tns:passwordType"> </xsd:element>
+<xsd:element name="orderId" type="tns:orderIdType">
+  </xsd:element>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:complexType name="cancelOrderReturnType">
+<xsd:sequence>
+<xsd:element name="resultCode" type="tns:resultCodeType">
+</xsd:element>
+<xsd:element name="errorCode" type="tns:errorCodeType">
+</xsd:element>
+<xsd:element minOccurs="0" name="errorCodeDescription" type="tns:errorCodeDescriptionType">
+</xsd:element>
+<xsd:element minOccurs="0" name="distributorId" type="tns:distributorIdType" />
+<xsd:element name="orderId" type="tns:orderIdType">
+</xsd:element>
+</xsd:sequence>
+</xsd:complexType>
+<xsd:element name="retrieveOrderInformation">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element name="username" type="tns:usernameType">
+</xsd:element>
+<xsd:element name="password" type="tns:passwordType">
+</xsd:element>
+<xsd:element name="orderId" type="tns:orderIdType">
+</xsd:element>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:complexType name="retrieveOrderInformationReturnType">
+<xsd:sequence>
+<xsd:element name="resultCode" type="tns:resultCodeType">
+</xsd:element>
+<xsd:element name="errorCode" type="tns:errorCodeType">
+</xsd:element>
+<xsd:element minOccurs="0" name="errorCodeDescription" type="tns:errorCodeDescriptionType">
+</xsd:element>
+<xsd:element minOccurs="0" name="distributorId" type="tns:distributorIdType" />
+<xsd:element name="orderId" type="tns:orderIdType">
+</xsd:element>
+<xsd:element minOccurs="0" name="shopId" type="tns:shopIdType">
+</xsd:element>
+<xsd:element minOccurs="0" name="terminalId" type="tns:terminalIdType">
+</xsd:element>
+<xsd:element minOccurs="0" name="orderStatus" type="tns:orderStatusType">
+</xsd:element>
+<xsd:element minOccurs="0" name="faceValue" type="tns:faceValueType">
+</xsd:element>
+<xsd:element minOccurs="0" name="currencyCode" type="tns:currencyCodeType">
+</xsd:element>
+<xsd:element minOccurs="0" name="productId" type="tns:productIdType">
+</xsd:element>
+<xsd:element minOccurs="0" name="serialNumber" type="tns:serialNumberType">
+</xsd:element>
+<xsd:element minOccurs="0" name="pin" type="tns:pinType">
+</xsd:element>
+<xsd:element minOccurs="0" name="deliveryType" type="tns:deliveryType">
+</xsd:element>
+<xsd:element minOccurs="0" name="orderErrorCode" type="tns:errorCodeType">
+</xsd:element>
+<xsd:element minOccurs="0" name="orderErrorCodeDescription" type="tns:errorCodeDescriptionType">
+</xsd:element>
+</xsd:sequence>
+</xsd:complexType>
+<xsd:simpleType name="usernameType">
+<xsd:restriction base="xsd:string">
+<xsd:maxLength value="100" />
+</xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="passwordType">
+<xsd:restriction base="xsd:string">
+<xsd:maxLength value="100" />
+</xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="retailerIdType">
+<xsd:restriction base="xsd:string"> <xsd:maxLength value="60" /> <xsd:minLength value="1" />
+</xsd:restriction> </xsd:simpleType>
+<xsd:simpleType name="shopIdType">
+<xsd:restriction base="xsd:string"> <xsd:minLength value="1" /> <xsd:maxLength value="15" />
+</xsd:restriction> </xsd:simpleType>
+<xsd:simpleType name="terminalIdType">
+<xsd:restriction base="xsd:string"> <xsd:minLength value="1" /> <xsd:maxLength value="60" />
+</xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="customerIdTypeEnum">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="ATM" />
+<xsd:enumeration value="ACCOUNT" />
+<xsd:enumeration value="NONE" />
+<xsd:enumeration value="PHONE" />
+</xsd:restriction> </xsd:simpleType>
+<xsd:simpleType name="customerIdType">
+<xsd:restriction base="xsd:string"> <xsd:maxLength value="60" /> <xsd:minLength value="1" />
+</xsd:restriction> </xsd:simpleType>
+<xsd:simpleType name="deliveryType">
+<xsd:restriction base="xsd:string"> <xsd:enumeration value="ACCOUNT" /> <xsd:enumeration value="RETURN" />
+</xsd:restriction> </xsd:simpleType>
+<xsd:simpleType name="utcOffsetType">
+<xsd:restriction base="xsd:string">
+<xsd:pattern value="([+\-]{1})([0-1]){1}([0-9]){1}:([0-4]){1}([0-5]){1}" />
+</xsd:restriction> </xsd:simpleType>
+<xsd:simpleType name="orderIdType">
+<xsd:restriction base="xsd:string"> <xsd:maxLength value="60" /> <xsd:minLength value="1" />
+</xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="countryCodeType">
+<xsd:restriction base="xsd:string"> <xsd:length value="2" />
+</xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="currencyCodeType">
+<xsd:restriction base="xsd:string"> <xsd:length value="3" />
+</xsd:restriction> </xsd:simpleType>
+<xsd:simpleType name="productIdType">
+<xsd:restriction base="xsd:string"> <xsd:length value="5" />
+</xsd:restriction> </xsd:simpleType>
+<xsd:simpleType name="resultCodeType">
+<xsd:restriction base="xsd:int">
+<xsd:minInclusive value="0" />
+<xsd:maxInclusive value="2" /> </xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="errorCodeType"> <xsd:restriction base="xsd:int" />
+</xsd:simpleType>
+<xsd:simpleType name="serialNumberType">
+<xsd:restriction base="xsd:integer">
+</xsd:restriction> </xsd:simpleType> <xsd:simpleType name="pinType">
+<xsd:restriction base="xsd:string">
+</xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="orderStatusType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="CREATED" />
+<xsd:enumeration value="DELIVERED" />
+<xsd:enumeration value="REJECTED" />
+<xsd:enumeration value="CANCELLED" />
+<xsd:enumeration value="DELIVERYFAILED" />
+</xsd:restriction>
+</xsd:simpleType>
+<xsd:element name="executeOrderResponse">
+<xsd:complexType>
+  <xsd:sequence>
+<xsd:element name="executeOrderReturn" type="tns:executeOrderReturnType" /> </xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="cancelOrderResponse">
+<xsd:complexType>
+  <xsd:sequence>
+<xsd:element name="cancelOrderReturn" type="tns:cancelOrderReturnType" /> </xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="retrieveOrderInformationResponse">
+<xsd:complexType>
+  <xsd:sequence>
+<xsd:element name="retrieveOrderInformationReturn" type="tns:retrieveOrderInformationReturnType" /> </xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:simpleType name="errorCodeDescriptionType">
+<xsd:restriction base="xsd:string"> <xsd:maxLength value="255" />
+</xsd:restriction> </xsd:simpleType>
+<xsd:simpleType name="faceValueType">
+<xsd:restriction base="xsd:decimal"> <xsd:pattern value="\d{1,11}\.?\d{0,2}" />
+</xsd:restriction>
+</xsd:simpleType>
+<xsd:simpleType name="distributorIdType">
+<xsd:restriction base="xsd:string"> <xsd:maxLength value="10" />
+  </xsd:restriction>
+</xsd:simpleType>
+</xsd:schema>
+</wsdl:types>
+<wsdl:message name="retrieveOrderInformationRequest">
+<wsdl:part element="tns:retrieveOrderInformation" name="parameters">
+</wsdl:part>
+</wsdl:message>
+<wsdl:message name="executeOrderRequest">
+<wsdl:part element="tns:executeOrder" name="parameters">
+</wsdl:part>
+</wsdl:message>
+<wsdl:message name="cancelOrderResponse">
+<wsdl:part element="tns:cancelOrderResponse" name="parameters">
+  </wsdl:part>
+</wsdl:message>
+<wsdl:message name="cancelOrderRequest">
+<wsdl:part element="tns:cancelOrder" name="parameters"> </wsdl:part>
+</wsdl:message>
+<wsdl:message name="executeOrderResponse">
+<wsdl:part element="tns:executeOrderResponse" name="parameters">
+</wsdl:part>
+</wsdl:message>
+<wsdl:message name="retrieveOrderInformationResponse">
+<wsdl:part element="tns:retrieveOrderInformationResponse" name="parameters">
+  </wsdl:part>
+</wsdl:message>
+<wsdl:portType name="Pod">
+<wsdl:operation name="executeOrder"> <wsdl:input message="tns:executeOrderRequest">
+</wsdl:input>
+<wsdl:output message="tns:executeOrderResponse">
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="cancelOrder">
+<wsdl:input message="tns:cancelOrderRequest"> </wsdl:input>
+<wsdl:output message="tns:cancelOrderResponse"> </wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="retrieveOrderInformation">
+<wsdl:input message="tns:retrieveOrderInformationRequest"> </wsdl:input>
+<wsdl:output message="tns:retrieveOrderInformationResponse"> </wsdl:output>
+</wsdl:operation>
+</wsdl:portType>
+<wsdl:binding name="PodBinding" type="tns:Pod">
+<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" /> <wsdl:operation name="executeOrder">
+<soap:operation soapAction="http://www.paysafecard.com/enterprise/distribution/podService/v1/executeOrder" /> <wsdl:input>
+  <soap:body use="literal" />
+</wsdl:input>
+<wsdl:output>
+  <soap:body use="literal" />
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="cancelOrder">
+<soap:operation soapAction="http://www.paysafecard.com/enterprise/distribution/podService/v1/cancelOrder" /> <wsdl:input>
+  <soap:body use="literal" />
+</wsdl:input>
+<wsdl:output>
+  <soap:body use="literal" />
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="retrieveOrderInformation">
+<soap:operation soapAction="http://www.paysafecard.com/enterprise/distribution/podService/v1/retrieveOrderInformation" /> <wsdl:input>
+  <soap:body use="literal" />
+</wsdl:input>
+<wsdl:output>
+  <soap:body use="literal" />
+</wsdl:output>
+</wsdl:operation> </wsdl:binding>
+<wsdl:service name="PodService">
+<wsdl:port binding="tns:PodBinding" name="Pod">
+<soap:address location="http://localhost:8080/pod/services/PodService" />
+  </wsdl:port>
+</wsdl:service>
+</wsdl:definitions>

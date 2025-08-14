@@ -1,0 +1,11 @@
+#!/bin/bash
+
+mkdir -p /opt/seamless/conf/kannel
+
+cp -L /main/* /opt/seamless/conf/
+cp -L /kannel/* /opt/seamless/conf/kannel/
+
+
+# SEGREGATE REPLICA LOGS INTO SEPARATE DIRS
+REPLICA_NAME=`echo $HOSTNAME | sed -E 's/.*-//'`
+sed -i "s+/var/seamless/log/kannel+/var/seamless/log/kannel/kannel/${REPLICA_NAME}+g" /opt/seamless/conf/kannel/kannel.conf

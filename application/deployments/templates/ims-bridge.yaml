@@ -1,0 +1,84 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ims-bridge
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: ims-bridge
+    egressTraffic: green
+spec:
+  replicas: {{ index .Values.replica.imsbridge .Values.env }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge:  40%
+       maxUnavailable: 20%
+  selector:
+    matchLabels:
+      app: ims-bridge
+  template:
+    metadata:
+      labels:
+        app: ims-bridge
+    spec:
+      initContainers:
+      - name: copy-configs
+        image: {{ .Values.image.init_centos }}
+        imagePullPolicy: IfNotPresent
+        command: ['bash','/scripts/configs-copy']
+        volumeMounts:
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-cm-main
+          mountPath: /main
+        - name: vol-cm-ims-bridge-main
+          mountPath: /ims-bridge
+        - name: vol-cm-ims-bridge-copy
+          mountPath: /scripts
+      containers:
+      - name: ims-bridge
+        image: {{ .Values.image.imsbridge }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8919
+        readinessProbe:
+          tcpSocket:
+            port: 8919
+          {{- include "probe" (list . "readiness" "imsbridge") | nindent 10 }}
+        livenessProbe:
+          tcpSocket:
+            port: 8919
+          {{- include "probe" (list . "liveness" "imsbridge") | nindent 10 }}
+        env:
+        - name: DEFAULT_TIME_ZONE
+          value: "{{ .Values.timezone }}"
+        - name: TZ
+          value: "{{ .Values.timezone }}"
+        volumeMounts:
+        - name: tz-{{ .Values.country }}
+          mountPath: /usr/share/zoneinfo/Asia/Dhaka
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-logs-ims-bridge
+          mountPath: {{ .Values.logs }}/ims-bridge
+      volumes:
+      - name: tz-{{ .Values.country }}
+        hostPath:
+          path: /usr/share/zoneinfo/{{ .Values.timezone }}
+      - name: vol-cm-main
+        configMap:
+          name: cm-main
+      - name: vol-cm-ims-bridge-main
+        configMap:
+          name: cm-ims-bridge-main
+      - name: vol-logs-ims-bridge
+        persistentVolumeClaim:
+          claimName: logs-ims-bridge-{{ .Release.Namespace }}
+      - name: config-dir-main
+        emptyDir: {}
+      - name: vol-cm-ims-bridge-copy
+        configMap:
+          name: cm-ims-bridge-copy
+      imagePullSecrets:
+      - name: {{ .Values.secret }}

@@ -1,0 +1,42 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-gp-idm-cockpit-link-main
+  namespace: {{ .Release.Namespace }}
+binaryData:
+{{- $files := .Files }}
+{{- range tuple "configs/gp-idm-cockpit-link/cockpit.p12" }}
+  {{ (base .) }}: |-
+{{ $files.Get . | b64enc | indent 4 }}
+{{- end }}
+data:
+{{ $currentScope := . }}
+{{ range $path, $_ :=  .Files.Glob  "configs/gp-idm-cockpit-link/*" }}
+{{- $fileName := base $path -}}
+{{- $filePath := printf "%s%s" $path "/*" -}}
+{{- with $currentScope -}}
+  {{- if and (ne $fileName "cockpit.p12") (ne $fileName "gp-idm-cockpit-link.properties") -}}
+  {{ printf "  %s:" (base $path) }} |-
+{{ .Files.Get $path | indent 4 }}
+  {{ end }}
+{{ end }}
+{{- end }}
+  gp-idm-cockpit-link.properties: |-
+{{ tpl ( .Files.Get "configs/gp-idm-cockpit-link/gp-idm-cockpit-link.properties" ) . | indent 4 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-gp-idm-cockpit-link-action
+  namespace: {{ .Release.Namespace }}
+data:
+{{ tpl (.Files.Glob "configs/gp-idm-cockpit-link/actions/*").AsConfig . | indent 2 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-gp-idm-cockpit-link-copy
+  namespace: {{ .Release.Namespace }}
+data:
+  configs-copy: {{ .Files.Get "scripts/configs-copy-gp-idm-cockpit-link" | quote }}

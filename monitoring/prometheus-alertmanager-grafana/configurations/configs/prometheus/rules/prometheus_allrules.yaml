@@ -1,0 +1,672 @@
+groups:
+- name: ./rules.conf
+  rules:
+
+#rs-monitoring-disk-usage-on-pod.yaml: |
+#groups:
+#- name: disk-usage-on-pod
+#  rules:
+  - alert: disk-usage-on-the-pod-critical
+    annotations:
+      alarmid: "12"
+      alertcategory: Application
+      alertdescription: Out of disk space {{ $labels.instance }} pv {{ $labels.persistentvolumeclaim
+        }} utilization > 70% Current value is {{ $value }}
+      alertseverity: Critical
+      alerttitle: Disk usage on pod
+      escalationlevel: Level-1
+      servicename: '{{ $labels.instance }} PV {{ $labels.persistentvolumeclaim }} '
+      summary: '"Out of disk space {{ $labels.instance }} utilization > 70%"'
+    expr: 100 - (kubelet_volume_stats_available_bytes{ namespace='ops'} /
+      kubelet_volume_stats_capacity_bytes{ namespace='ops'} * 100) > 70
+    for: 2m
+    labels:
+      severity: Critical
+#rs-monitoring-mysql-db-cluster.yaml: |
+#groups:
+#- name: mysql-db-cluster
+#  rules:
+  - alert: mysql-db-cluster
+    annotations:
+      alarmid: "18"
+      alertcategory: Database
+      alertdescription: DB cluster is not synced on {{ $labels.instance }}
+      alertseverity: Critical
+      alerttitle: DB Cluster Status
+      escalationlevel: Level-1
+      servicename: '{{ $labels.service }}'
+    expr: mysql_db_cluster == 0
+    for: 0m
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Critical
+#rs-monitoring-allreplicasinthedeployment.yaml: |
+#groups:
+#- name: AllReplicasInTheDeployment
+#  rules:
+  - alert: AllReplicasInTheDeployment
+    annotations:
+      alarmid: "2"
+      alertcategory: Application
+      alertdescription: Replicasets in {{ $labels.deployment }} replicas desired count
+        is not equal to current count (instance {{ $labels.instance }})
+      alertseverity: Critical
+      alerttitle: All Replicas in the deployment
+      escalationlevel: Level-1
+      servicename: ' {{ $labels.deployment }} '
+    expr: kube_deployment_spec_replicas{ namespace="ops"} != kube_deployment_status_replicas_available{ namespace="ops"}
+    for: 0m
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Critical
+#rs-monitoring-deployment-uptime.yaml: |
+##groups:
+#- name: deployment-uptime
+#  rules:
+  - alert: deployment-uptime-warning
+    annotations:
+      alarmid: "9"
+      alertcategory: Application
+      alertdescription: |-
+        uptime (< 300 seconds)
+        Value = {{ $value }}
+        Labels = {{ $labels }}
+      alertseverity: Warning
+      alerttitle: Deployment Uptime
+      escalationlevel: Level-1
+      servicename: '{{ $labels.pod }}'
+    expr: envoy_server_uptime < 300
+    for: 0m
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Warning
+  - alert: deployment-uptime-critical
+    annotations:
+      alarmid: "10"
+      alertcategory: Application
+      alertseverity: Critical
+      alerttitle: Deployment Uptime
+      description: |-
+        uptime (< 1000 seconds)
+        Value = {{ $value }}
+        Labels = {{ $labels }}
+      escalationlevel: Level-1
+      servicename: '{{ $labels.pod }}'
+    expr: envoy_server_uptime < 1000
+    for: 0m
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Critical
+#rs-monitoring-disk-usage-on-the-deployment.yaml: |
+#groups:
+#- name: disk-usage-on-the-deployment
+#  rules:
+  - alert: disk-usage-on-the-deployment-warning
+    annotations:
+      alarmid: "11"
+      alertcategory: Application
+      alertdescription: '"Out of disk space {{ $labels.instance }} utilization > 80%"'
+      alertseverity: Warning
+      alerttitle: Disk usage on deployment
+      escalationlevel: Level-1
+      servicename: '{{ $labels.instance }}'
+      summary: Out of disk space {{ $labels.instance }} utilization > 80% Current
+        value is {{ $value }}
+    expr: (1-(sum(container_fs_inodes_free{name!="", namespace="ops"}) BY
+      (instance,name,pod,namespace) / sum(container_fs_inodes_total) BY (instance,name,pod,namespace)))
+      * 100 == 80
+    for: 2m
+    labels:
+      severity: Warning
+  - alert: disk-usage-on-the-deployment-critical
+    annotations:
+      alarmid: "12"
+      alertcategory: Application
+      alertdescription: Out of disk space {{ $labels.instance }} utilization > 90%
+        Current value is {{ $value }}
+      alertseverity: Critical
+      alerttitle: Disk usage on deployment
+      escalationlevel: Level-1
+      servicename: '{{ $labels.instance }}'
+      summary: '"Out of disk space {{ $labels.instance }} utilization > 90%"'
+    expr: (1-(sum(container_fs_inodes_free{name!="", namespace="ops"}) BY
+      (instance,name,pod,namespace) / sum(container_fs_inodes_total) BY (instance,name,pod,namespace)))
+      * 100 == 90
+    for: 2m
+    labels:
+      severity: Critical
+#rs-monitoring-all-pods-ok-in-namespace.yaml: |
+#groups:
+##- name: all-pods-ok-in-namespace
+##  rules:
+  - alert: all-pods-ok-in-namespace
+    annotations:
+      alarmid: "1"
+      alertcategory: Application
+      alertdescription: '"Pod {{ $labels.pod }} is not in running state"'
+      alertseverity: Critical
+      alerttitle: Pod status
+      escalationlevel: Level-1
+      servicename: ' {{ $labels.service }} '
+    expr: up == 0
+    for: 0m
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Critical
+#rs-monitoring-mysql-db-connections.yaml: |
+##groups:
+#- name: mysql-db-connections
+#  rules:
+  - alert: mysql-db-connections-warning
+    annotations:
+      alarmid: "21"
+      alertcategory: Database
+      alertdescription: DB connections are > 1000 {{ $labels.instance }}
+      alertseverity: Warning
+      alerttitle: DB Connections
+      escalationlevel: Level-1
+      servicename: '{{ $labels.service }}'
+    expr: mysql_db_connection >= 1000
+    for: 0m
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Warning
+  - alert: mysql-db-connections-critical
+    annotations:
+      alarmid: "20"
+      alertcategory: Database
+      alertdescription: DB connections are > 2000 {{ $labels.instance }}
+      alertseverity: Critical
+      alerttitle: DB Connections
+      escalationlevel: Level-1
+      servicename: '{{ $labels.service }}'
+    expr: mysql_db_connection >= 2000
+    for: 0m
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Critical
+##rs-monitoring-check-host.yaml: |
+#groups:
+##- name: check-host
+#  rules:
+  - alert: check-host
+    annotations:
+      alarmid: "36"
+      alertcategory: Hardware
+      alertdescription: Host {{ $labels.instance }} is not in running state
+      alertseverity: Critical
+      alerttitle: Check Host
+      escalationlevel: Level-1
+      servicename: ' {{ $labels.instance }} '
+    expr: up == 0
+    for: 0m
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Critical
+#rs-monitoring-check-network.yaml: |
+#groups:
+##- name: check-network
+#  rules:
+  - alert: check-network
+    annotations:
+      alarmid: "5"
+      alertcategory: Network
+      alertdescription: Network on device {{ $labels.device }} Instance {{ $labels.instance
+        }} is down
+      alertseverity: Critical
+      alerttitle: Check Network
+      escalationlevel: Level-1
+      servicename: ' {{ $labels.device }} '
+    expr: node_network_up{device="eth0"}==0
+    for: 0m
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Critical
+#rs-monitoring-host-queue.yaml: |
+#groups:
+#- name: host-queue
+#  rules:
+  - alert: host-queue
+    annotations:
+      alarmid: "16"
+      alertcategory: Network
+      alertdescription: Host Queue {{ $labels.service }} has breached the threshold
+      alertseverity: Critical
+      alerttitle: Check Host Queue
+      escalationlevel: Level-1
+      servicename: '{{ $labels.service }}'
+    expr: host_queue == 0
+    for: 0m
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Critical
+#rs-monitoring-host-port.yaml: |
+#groups:
+#- name: host-port
+#  rules:
+  - alert: host-port
+    annotations:
+      alarmid: "14"
+      alertcategory: Network
+      alertdescription: Host port {{ $labels.service }} is not in running state
+      alertseverity: Critical
+      alerttitle: Check Host Port
+      escalationlevel: Level-1
+      servicename: '{{ $labels.service }}'
+    expr: host_port == 0
+    for: 0m
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Critical
+#rs-monitoring-check-deployment.yaml: |
+#groups:
+#- name: check-deployment
+#  rules:
+  - alert: check-deployment
+    annotations:
+      alarmid: "3"
+      alertcategory: Application
+      alertdescription: '"Deployment {{ $labels.deployed }} is not in deployed state
+        current status is {{ $value }}"'
+      alertseverity: Critical
+      alerttitle: Check Deployment
+      escalationlevel: Level-1
+      servicename: ' {{ $labels.deployment }} '
+      summary: '"Deployment is not in deployed state  {{ $labels.deployment }}"'
+    expr: kube_deployment_status_condition{ namespace="ops",status="true"}
+      < 1
+    for: 2m
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Critical
+#rs-monitoring-host-process.yaml: |
+#groups:
+##- name: host-process
+#  rules:
+  - alert: host-process
+    annotations:
+      alarmid: "15"
+      alertcategory: Application
+      alertdescription: Host process {{ $labels.service }} is not in running state
+      alertseverity: Critical
+      alerttitle: Check Host Process
+      escalationlevel: Level-1
+      servicename: '{{ $labels.service }}'
+    expr: host_process == 0
+    for: 0m
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Critical
+#rs-monitoring-outboundservice.yaml: |
+#groups:
+#- name: outboundservice
+#  rules:
+  - alert: outboundservice
+    annotations:
+      alarmid: "57"
+      alertcategory: Outbound Service
+      alertdescription: '{{ $labels.description }} for instance {{ $labels.instance
+        }}'
+      alertseverity: Critical
+      alerttitle: Outbound Service Status
+      escalationlevel: Level-1
+      servicename: '{{ $labels.service }}'
+    expr: outbound_service == 0
+    for: 0m
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Critical
+##rs-monitoring-tdr-script-count-mismatch.yaml: |
+#groups:
+#- name: tdr-script-count-mismatch
+#  rules:
+  - alert: tdr-script-count-mismatch
+    annotations:
+      alarmid: "48"
+      alertcategory: TDR
+      alertdescription: ' {{ $labels.description }}'
+      alertseverity: Critical
+      alerttitle: TDR Script Count Mismatch
+      escalationlevel: Level-1
+      servicename: '{{ $labels.service }}'
+    expr: tdr_script > 0
+    for: 0m
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Critical
+#rs-monitoring-mysql-db-ddl-command.yaml: |
+#groups:
+#- name: mysql-db-ddl-command
+#  rules:
+  - alert: mysql-db-ddl-command
+    annotations:
+      alarmid: "22"
+      alertcategory: Database
+      alertdescription: DDL query has been executed on DB  {{ $labels.instance }}
+      alertseverity: Critical
+      alerttitle: DB DDL Commands
+      escalationlevel: Level-1
+      servicename: '{{ $labels.service }}'
+    expr: mysql_db_ddl_commands > 0
+    for: 0m
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Critical
+#rs-monitoring-mysql-db-longqueries.yaml: |
+##groups:
+#- name: mysql-db-longqueries
+#  rules:
+  - alert: mysql-db-longqueries-warning
+    annotations:
+      alarmid: "24"
+      alertcategory: Database
+      alertdescription: Long queries running on DB for > 100sec {{ $labels.instance
+        }}
+      alertseverity: Warning
+      alerttitle: DB long query
+      escalationlevel: Level-1
+      servicename: '{{ $labels.service }}'
+    expr: mysql_db_longquery > 100
+    for: 0m
+    labels:
+      severity: Warning
+  - alert: mysql-db-longqueries-critical
+    annotations:
+      alarmid: "23"
+      alertcategory: Database
+      alertdescription: Long queries running on DB for > 500 sec {{ $labels.instance
+        }}
+      alertseverity: Critical
+      alerttitle: DB long query
+      escalationlevel: Level-1
+      servicename: '{{ $labels.service }}'
+    expr: mysql_db_longquery > 500
+    for: 0m
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Critical
+#rs-monitoring-mysql-db-partition.yaml: |
+##groups:
+#- name: mysql-db-partition
+#  rules:
+  - alert: mysql-db-partition
+    annotations:
+      alarmid: "26"
+      alertcategory: Database
+      alertdescription: DB partition is not updated {{ $labels.instance }}
+      alertseverity: Critical
+      alerttitle: DB partition
+      escalationlevel: Level-1
+      servicename: '{{ $labels.service }}'
+    expr: mysql_db_partition != 1
+    for: 0m
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Critical
+#rs-monitoring-check-all-deployments.yaml: |
+#groups:
+#- name: check-all-deployments
+#  rules:
+  - alert: check-all-deployments
+    annotations:
+      alarmid: "33"
+      alertcategory: Application
+      alertdescription: '"Deployment {{ $labels.deployment }} is not in running state"'
+      alertseverity: Critical
+      alerttitle: Check all deployments
+      escalationlevel: Level-1
+      servicename: ' {{ $labels.deployment }} '
+    expr: kube_deployment_status_observed_generation != kube_deployment_metadata_generation
+    for: 0m
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Critical
+#rs-monitoring-pod-memory-usage.yaml: |
+#groups:
+##- name: pod-memory-usage
+#  rules:
+  - alert: pod-memory-usage-warning
+    annotations:
+      alarmid: "32"
+      alertcategory: Application
+      alertdescription: |-
+        Pod memory is filling up (> 80%)
+        Value = {{ $value }}
+        Labels = {{ $labels }}
+      alertseverity: Warning
+      alerttitle: Pod memory usage
+      escalationlevel: Level-1
+      servicename: '{{ $labels.pod }}'
+      summary: Pod {{ $labels.pod }} is out of memory (instance {{ $labels.instance
+        }})
+    expr: (sum(container_memory_working_set_bytes{name!="", namespace="ops"})
+      BY (instance,pod,namespace) / sum(container_spec_memory_limit_bytes
+      > 0) BY (instance,pod,namespace) * 100) > 80
+    for: 2m
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: warning
+  - alert: pod-memory-usage-critical
+    annotations:
+      alarmid: "31"
+      alertcategory: Application
+      alertdescription: |-
+        Pod memory is filling up (> 90%)
+        Value = {{ $value }}
+        Labels = {{ $labels }}
+      alertseverity: Critical
+      alerttitle: Pod memory usage
+      escalationlevel: Level-1
+      servicename: '{{ $labels.pod }}'
+      summary: Pod {{ $labels.pod }} is out of memory (instance {{ $labels.instance
+        }})
+    expr: (sum(container_memory_working_set_bytes{name!="", namespace="ops"})
+      BY (instance,pod,namespace) / sum(container_spec_memory_limit_bytes
+      > 0) BY (instance,pod,namespace) * 100) > 90
+    for: 2m
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Critical
+#rs-monitoring-host-error-logs.yaml: |
+#groups:
+################ FOR ERROR LOGS ################
+#- name: host-error-logs
+#  rules:
+#  - alert: host-error-logs
+#    annotations:
+#      alarmid: "13"
+#      alertcategory: Logs
+#      alertdescription: Error logs observed {{ $labels.service }} log details {{ $labels.description
+#        }}
+#      alertseverity: Critical
+#      alerttitle: Host error logs
+#      escalationlevel: Level-1
+#      logdetails: '{{ $labels.description }}'
+#      servicename: '{{ $labels.service }}'
+#    expr: host_error_log > 0
+#    for: 0m
+#    labels:
+#      namespace: {{ .Release.Namespace }}
+#      severity: Critical
+#rs-monitoring-check-cpu-usage.yaml: |
+#groups:
+##- name: check-cpu-usage
+#  rules:
+  - alert: check-cpu-usage-warning
+    annotations:
+      alarmid: "34"
+      alertcategory: Application/Hardware
+      alertdescription: CPU utilization for {{ $labels.instance }} is at warning threshold
+        (> 80%) Value = {{ $value }} Labels = {{ $labels }}
+      alertseverity: Warning
+      alerttitle: Check CPU Usage
+      escalationlevel: Level-1
+      servicename: ' {{ $labels.instance }} '
+    expr: 100 - ((avg by(instance) (rate(node_cpu_seconds_total{mode='idle'}[2m])))
+      * 100) > 80
+    for: 10s
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Warning
+  - alert: check-cpu-usage-critical
+    annotations:
+      alarmid: "35"
+      alertcategory: Application/Hardware
+      alertdescription: CPU utilization for {{ $labels.instance }} is at critical
+        threshold (> 90%) Value = {{ $value }} Labels = {{ $labels }}
+      alertseverity: Critical
+      alerttitle: Check CPU Usage
+      escalationlevel: Level-1
+      servicename: ' {{ $labels.instance }} '
+    expr: 100 - ((avg by(instance) (rate(node_cpu_seconds_total{mode='idle'}[2m])))
+      * 100) > 90
+    for: 10s
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Critical
+#rs-monitoring-check-memory-usage.yaml: |
+#groups:
+#- name: check-memory-usage
+#  rules:
+  - alert: check-memory-usage-warning
+    annotations:
+      alarmid: "4"
+      alertcategory: Application/Hardware
+      alertdescription: Memory utilization for {{ $labels.instance }} is at warning
+        threshold (> 80%) Value = {{ $value }} Labels = {{ $labels }}
+      alertseverity: Critical
+      alerttitle: Check Memory Usage
+      escalationlevel: Level-1
+      servicename: ' {{ $labels.instance }} '
+    expr: ((node_memory_MemTotal_bytes-node_memory_MemFree_bytes)/node_memory_MemTotal_bytes)
+      * 100 > 80
+    for: 10s
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Warning
+  - alert: check-memory-usage-critical
+    annotations:
+      alarmid: "38"
+      alertcategory: Application/Hardware
+      alertdescription: Memory utilization for {{ $labels.instance }} is at critical
+        threshold (> 90%) Value = {{ $value }} Labels = {{ $labels }}
+      alertseverity: Critical
+      alerttitle: Check Memory Usage
+      escalationlevel: Level-1
+      servicename: ' {{ $labels.instance }} '
+    expr: ((node_memory_MemTotal_bytes-node_memory_MemFree_bytes)/node_memory_MemTotal_bytes)
+      * 100 > 90
+    for: 10s
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Critical
+#groups:
+#- name: mysql-db-status
+#  rules:
+  - alert: mysql-db-status
+    annotations:
+      alarmid: "28"
+      alertcategory: Database
+      alertdescription: DB is down on {{ $labels.instance }}
+      alertseverity: Critical
+      alerttitle: DB Status
+      escalationlevel: Level-1
+      servicename: '{{ $labels.service }}'
+    expr: mysql_db_status == 0
+    for: 0m
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Critical
+#groups:
+#- name: check-space-utilization
+#  rules:
+  - alert: check-space-utilization-warning
+    annotations:
+      alarmid: "7"
+      alertcategory: Application/Hardware
+      alertdescription: Mount Point utilization for {{ $labels.mountpoint }} on {{
+        $labels.instance }} is at warning threshold (> 80%) Value = {{ $value }} Labels
+        = {{ $labels }}
+      alertseverity: Warning
+      alerttitle: Check Space Utilization
+      escalationlevel: Level-1
+      servicename: '{{ $labels.instance }} {{ $labels.mountpoint }}'
+    expr: ((node_filesystem_size_bytes-node_filesystem_avail_bytes)/node_filesystem_size_bytes)*100
+      > 80
+    for: 10s
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Warning
+  - alert: check-space-utilization-critical
+    annotations:
+      alarmid: "8"
+      alertcategory: Application/Hardware
+      alertdescription: Mount Point utilization for {{ $labels.mountpoint }} on {{
+        $labels.instance }} is at critical threshold (> 90%) Value = {{ $value }}
+        Labels = {{ $labels }}
+      alertseverity: Critical
+      alerttitle: Check Space Utilization
+      escalationlevel: Level-1
+      servicename: '{{ $labels.instance }} {{ $labels.mountpoint }}'
+    expr: ((node_filesystem_size_bytes-node_filesystem_avail_bytes)/node_filesystem_size_bytes)*100
+      > 90
+    for: 10s
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Critical
+#groups:
+#- name: pod-cpu-usage
+#  rules:
+  - alert: pod-cpu-usage-warning
+    annotations:
+      alarmid: "29"
+      alertcategory: Application
+      alertdescription: CPU usage on {{ $labels.pod }} is >80% , Value = {{ $value
+        }}, instance = {{ $labels.instance }}
+      alertseverity: Warning
+      alerttitle: Pod cpu usage
+      escalationlevel: Level-1
+      servicename: '{{ $labels.pod }}'
+      summary: Pod {{ $labels.pod }} High CPU usage (instance {{ $labels.instance
+        }})
+    expr: (sum(rate(container_cpu_usage_seconds_total{name!="", namespace="ops"}[3m]))
+      BY (instance,pod,namespace) * 100) > 80
+    for: 2m
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Warning
+  - alert: pod-cpu-usage-critical
+    annotations:
+      alarmid: "30"
+      alertcategory: Application
+      alertdescription: CPU usage on {{ $labels.pod }} is >90% , Value = {{ $value
+        }}, instance = {{ $labels.instance }}
+      alertseverity: Critical
+      alerttitle: Pod cpu usage
+      escalationlevel: Level-1
+      servicename: '{{ $labels.pod }}'
+      summary: Pod {{ $labels.pod }} High CPU usage (instance {{ $labels.instance
+        }})
+    expr: (sum(rate(container_cpu_usage_seconds_total{name!="", namespace="ops"}[3m]))
+      BY (instance,pod,namespace) * 100) > 90
+    for: 2m
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Critical
+#groups:
+#- name: mysql-db-cluster-count
+##  rules:
+  - alert: mysql-db-cluster-count
+    annotations:
+      alarmid: "19"
+      alertcategory: Database
+      alertdescription: DB cluster count is less than 3 on {{ $labels.instance }}
+      alertseverity: Critical
+      alerttitle: DB Cluster Count
+      escalationlevel: Level-1
+      servicename: '{{ $labels.service }}'
+    expr: mysql_db_cluster_count == 0
+    for: 0m
+    labels:
+      namespace: {{ .Release.Namespace }}
+      severity: Critical

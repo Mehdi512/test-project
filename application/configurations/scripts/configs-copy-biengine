@@ -1,0 +1,13 @@
+#!/bin/bash
+
+mkdir -p /opt/seamless/conf/bi-engine/{templates,scripts}
+
+cp -L /main/* /opt/seamless/conf/
+cp -L /bi-engine-main/* /opt/seamless/conf/bi-engine/
+cp -L /bi-engine-templates/* /opt/seamless/conf/bi-engine/templates/
+cp -L /bi-engine-scripts/* /opt/seamless/conf/bi-engine/scripts/
+
+
+# SEGREGATE REPLICA LOGS INTO SEPARATE DIRS
+REPLICA_NAME=`echo $HOSTNAME | sed -E 's/.*-//'`
+sed -i "s+/var/seamless/log/bi-engine+/var/seamless/log/bi-engine/bi-engine/${REPLICA_NAME}+g" /opt/seamless/conf/bi-engine/log4j2.xml

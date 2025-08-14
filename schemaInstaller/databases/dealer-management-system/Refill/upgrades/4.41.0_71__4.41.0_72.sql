@@ -1,0 +1,1 @@
+ALTER TABLE `reseller_types` ADD COLUMN `RoleKey` INT(11) NOT NULL DEFAULT 0;

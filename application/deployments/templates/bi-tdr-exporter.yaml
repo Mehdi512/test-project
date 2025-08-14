@@ -1,0 +1,76 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bi-tdr-exporter
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: bi-tdr-exporter
+    egressTraffic: green
+spec:
+  replicas: {{ index .Values.replica.bitdrexporter .Values.env }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge:  40%
+       maxUnavailable: 20%
+  selector:
+    matchLabels:
+      app: bi-tdr-exporter
+  template:
+    metadata:
+      labels:
+        app: bi-tdr-exporter
+    spec:
+      initContainers:
+      - name: copy-configs
+        image: {{ .Values.image.init_centos }}
+        imagePullPolicy: IfNotPresent
+        command: ['bash','/scripts/configs-copy']
+        volumeMounts:
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-cm-main
+          mountPath: /main
+        - name: vol-cm-bi-tdr-exporter-main
+          mountPath: /bi-tdr-exporter-main
+        - name: vol-cm-bi-tdr-exporter-copy
+          mountPath: /scripts
+      containers:
+      - name: bi-tdr-exporter
+        image: {{ .Values.image.bitdrexporter }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8920
+        env:
+        - name: DEFAULT_TIME_ZONE
+          value: "{{ .Values.timezone }}"
+        - name: TZ
+          value: "{{ .Values.timezone }}"
+        volumeMounts:
+        - name: tz-{{ .Values.country }}
+          mountPath: /usr/share/zoneinfo/Asia/Dhaka
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-logs-bi-tdr-exporter
+          mountPath: {{ .Values.logs }}/bi-tdr-exporter
+      volumes:
+      - name: tz-{{ .Values.country }}
+        hostPath:
+          path: /usr/share/zoneinfo/{{ .Values.timezone }}
+      - name: vol-cm-main
+        configMap:
+          name: cm-main
+      - name: vol-cm-bi-tdr-exporter-main
+        configMap:
+          name: cm-bi-tdr-exporter-main
+      - name: vol-logs-bi-tdr-exporter
+        persistentVolumeClaim:
+          claimName: logs-bi-tdr-exporter-{{ .Release.Namespace }}
+      - name: config-dir-main
+        emptyDir: {}
+      - name: vol-cm-bi-tdr-exporter-copy
+        configMap:
+          name: cm-bi-tdr-exporter-copy
+      imagePullSecrets:
+      - name: {{ .Values.secret }}

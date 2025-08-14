@@ -1,0 +1,19 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: coreproxy
+  name: svc-coreproxy
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - name: cp1
+    port: 8912
+    targetPort: 8912
+  - name: cp2
+    port: 8983
+    targetPort: 8983
+  selector:
+    app: coreproxy
+  type: ClusterIP

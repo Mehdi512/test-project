@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-gp-idm-ers-link-main
+  namespace: {{ .Release.Namespace }}
+data:
+{{ tpl (.Files.Glob "configs/gp-idm-ers-link/*").AsConfig . | indent 2 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-gp-idm-ers-link-copy
+  namespace: {{ .Release.Namespace }}
+data:
+  configs-copy: {{ .Files.Get "scripts/configs-copy-gp-idm-ers-link" | quote }}

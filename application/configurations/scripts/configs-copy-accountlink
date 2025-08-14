@@ -1,0 +1,11 @@
+#!/bin/bash
+
+mkdir -p /opt/seamless/conf/accountlinksimulator
+
+cp -L /main/* /opt/seamless/conf/
+cp -L /accountlink/* /opt/seamless/conf/accountlinksimulator/
+
+
+# SEGREGATE REPLICA LOGS INTO SEPARATE DIRS
+REPLICA_NAME=`echo $HOSTNAME | sed -E 's/.*-//'`
+sed -i "s+/var/seamless/log/accountlinksimulator+/var/seamless/log/accountlinksimulator/accountlinksimulator/${REPLICA_NAME}+g" /opt/seamless/conf/accountlinksimulator/log4j.properties

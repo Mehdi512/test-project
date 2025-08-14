@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-gp-idm-asset-management-main
+  namespace: {{ .Release.Namespace }}
+data:
+{{ tpl (.Files.Glob "configs/gp-idm-asset-management/*").AsConfig . | indent 2 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-gp-idm-asset-management-copy
+  namespace: {{ .Release.Namespace }}
+data:
+  configs-copy: {{ .Files.Get "scripts/configs-copy-gp-idm-asset-management" | quote }}

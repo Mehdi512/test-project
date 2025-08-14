@@ -1,0 +1,223 @@
+## This section contains the details of the servers where RPM-based components
+## are running
+## i.e, Databases, Elastic-Search, Logstash, Redis, Kannel &
+## Scc-data-aggregator
+
+## This info is required to generate an haproxy config that will help redirect
+## K8 components to components running outside K8 cluster via haproxy deployment
+
+## If there need be to add any other service, define a variable for those here
+## & corressponding config section in the haproxy.cfg file
+
+# nonClusterComponents:
+# ## In case of Galera, you can add as much node as you wish in list of servers below
+#   transaction_databases:
+#   - name:
+#     ip:
+
+# ## In case of Galera, you can add as much node as you wish in list of servers below
+#   reporting_databases:
+#   - name:
+#     ip:
+
+#   redis:
+#   - name:
+#     ip:
+
+## In case of ELK cluster, you can add as much node as you wish in list of servers below
+  # elasticSearch:
+  # - name:
+  #   ip:
+
+  # logstash:
+  # - name:
+  #   ip:
+## not relevant to GP
+
+
+###DB ENDPOINTS
+## Engineers have choice to specify direct IP of DB_HOSTS
+## Or they can specify HAPROXY service name to route traffic through HAPROXY
+## For more control, each component db endpoint is defined
+
+## ACCESS_MANAGEMENT
+DB_HOST__access_management: 10.91.7.247
+DB_PORT__access_management: 3306
+
+## ACCOUNT_MANAGAMENR
+DB_HOST__accountmanagement: 10.91.7.247
+DB_PORT__accountmanagement: 3306
+
+## BATCH_SCHEDULING_SYSTEM
+DB_HOST__batchschedulingsystem: 10.91.7.247
+DB_PORT__batchschedulingsystem: 3306
+
+## BI
+DB_HOST__bi: 10.91.7.247
+DB_PORT__bi: 3306
+
+## REFILL
+DB_HOST__Refill: 10.91.7.247
+DB_PORT__Refill: 3306
+
+## BI_TDR_EXPORTER
+DB_HOST__bitdrexporter: 10.91.7.247
+DB_PORT__bitdrexporter: 3306
+
+## CONTRACT_MANAGEMENT
+DB_HOST__contractmanagement: 10.91.7.247
+DB_PORT__contractmanagement: 3306
+
+## GROUP_MANAGEMENT_SYSTEM
+DB_HOST__groupmanagementsystem: 10.91.7.247
+DB_PORT__groupmanagementsystem: 3306
+
+## IMS_BRIDGE
+DB_HOST__imsbridge: 10.91.7.247
+DB_PORT__imsbridge: 3306
+
+## TRANSACTIONLOG
+DB_HOST__transactionlog: 10.91.7.247
+DB_PORT__transactionlog: 3306
+
+## NOTIFICATION_UI
+DB_HOST__notificationui: 10.91.7.247
+DB_PORT__notificationui: 3306
+
+## OBJECT_STORE_MANAGER
+DB_HOST__object_store_manager: 10.91.7.247
+DB_PORT__object_store_manager: 3306
+
+## PRODUCT_MANAGEMENT_SYSTEM
+DB_HOST__pms: 10.91.7.247
+DB_PORT__pms: 3306
+
+## REGION_MANAGEMENT
+DB_HOST__regionmanagement: 10.91.7.247
+DB_PORT__regionmanagement: 3306
+
+## TEMPLATE_MANAGEMENT
+DB_HOST__template_management: 10.91.7.247
+DB_PORT__template_management: 3306
+
+## ALERTAPP
+DB_HOST__alertapp: 10.91.7.247
+DB_PORT__alertapp: 3306
+
+## REFERENCE_GENERATOR
+DB_HOST__referencegenerator: 10.91.7.247
+DB_PORT__referencegenerator: 3306
+
+## INVENTORY_MANAGEMENT_SYSTEM
+DB_HOST__inventory_management_system: 10.91.7.247
+DB_PORT__inventory_management_system: 3306
+
+## VOUCHER_SYSTEM
+DB_HOST__vouchersdb: 10.91.7.247
+DB_PORT__vouchersdb: 3306
+
+## ORDER_MANAGEMENT_SYSTEM
+DB_HOST__order_management_system: 10.91.7.247
+DB_PORT__order_management_system: 3306
+
+
+## CELL_SIM
+DB_HOST__cellsim: 10.91.7.247
+DB_PORT__cellsim: 3306
+
+## KYC
+DB_HOST__kyc: 10.91.7.247
+DB_PORT__kyc: 3306
+
+## DATAAGGREGATOR
+DB_HOST__dataaggregator: 10.91.7.247
+DB_PORT__dataaggregator: 3306
+
+## GRN_PROCESSOR
+DB_HOST__grnprocessor: 10.91.7.247
+DB_PORT__grnprocessor: 3306
+
+## IDM_ASSET_MANAGEMENT
+DB_HOST__asset_management: 10.91.7.247
+DB_PORT__asset_management: 3306
+
+## IDM_BPRS_LINK
+DB_HOST__idmbprslink: 10.91.7.247
+DB_PORT__idmbprslink: 3306
+
+## GP_IDM_ERP_LINK
+DB_HOST__idmerplink: 10.91.7.247
+DB_PORT__idmerplink: 3306
+
+## GP_IDM_ERS_LINK
+DB_HOST__idmerslink: 10.91.7.247
+DB_PORT__idmerslink: 3306
+
+## GP_IDM_MFS_LINK
+DB_HOST__idmmfslink: 10.91.7.247
+DB_PORT__idmmfslink: 3306
+
+## GP_IDM_POL_LINK
+DB_HOST__idmpollink: 10.91.7.247
+DB_PORT__idmpollink: 3306
+
+## GP_IDM_VOUCHER_ACTIVATOR
+DB_HOST__idmvoucheractivator: 10.91.7.247
+DB_PORT__idmvoucheractivator: 3306
+
+
+## HELPER_LINK
+DB_HOST__helper_link: 10.91.7.247
+DB_PORT__helper_link: 3306
+
+## QUOTA_MANAGEMENT
+DB_HOST__quotamanagement: 10.91.7.247
+DB_PORT__quotamanagement: 3306
+
+
+
+## GP_IDM_CIM_LINK
+HOST__idmcimlink: 10.91.7.247
+PORT__idmcimlink: 3306
+
+## GP_IDM_COCKPIT_LINK
+HOST__idmcockpitlink: 10.91.7.247
+PORT__idmcockpitlink: 3306
+
+## GP_IDM_CMS_LINK
+HOST__idmcmslink: 10.91.7.247
+PORT__idmcmslink: 3306
+
+
+### OTHER EXTERNAL SERVICES ENDPOINT
+## ELASTICSEARCH
+HOST__elasticsearch: 10.91.7.247
+HOST__elasticsearch_user: elastic
+HOST__elasticsearch_pass: seamless
+PORT__elasticsearch: 9200
+
+## REDIS
+HOST__redis: svc-redis
+PORT__redis: 6379
+
+
+# KANNEL - PORT: 13013
+HOST__kannel: svc-kannel
+PORT__kannel: 13013
+
+# LINK_SIMULATOR
+HOST__link_simulator: svc-link-simulator
+PORT__link_simulator: 8096
+
+## GP_IDM_VOUCHER_ACTIVATOR
+HOST__voucheractivator: 10.91.7.247
+PORT__voucheractivator: 10020
+
+#
+DB_HOST__password: refill
+
+# MINIO
+HOST__minio_accesskey: refill
+HOST__minio_secretkey: seamless
+
+ERS-VM-IP: 10.10.2.189

@@ -1,0 +1,2 @@
+CREATE INDEX IF NOT EXISTS ownerStateIsActiveIdx ON serialized_inventory(owner_id, workflow_state_id, is_active);
+CREATE INDEX IF NOT EXISTS skuOwnerSerialRefIsActiveIdx ON serialized_inventory(product_sku, owner_id, serial_number, ref_no, is_active);

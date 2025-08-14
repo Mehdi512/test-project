@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: notification-ui
+  name: svc-notification-ui
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - port: 8177
+    targetPort: 8177
+  selector:
+    app: notification-ui
+  type: ClusterIP

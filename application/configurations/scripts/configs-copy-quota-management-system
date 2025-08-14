@@ -1,0 +1,14 @@
+#!/bin/bash
+
+mkdir -p /opt/seamless/conf/quota-management-system/templates/{audit,tdr,notification}
+
+cp -L /main/* /opt/seamless/conf/
+cp -L /quota-management-main/* /opt/seamless/conf/quota-management-system/
+cp -L /quota-management-audit/* /opt/seamless/conf/quota-management-system/templates/audit/
+cp -L /quota-management-tdr/* /opt/seamless/conf/quota-management-system/templates/tdr/
+cp -L /quota-management-notification/* /opt/seamless/conf/quota-management-system/templates/notification/
+
+
+# SEGREGATE REPLICA LOGS INTO SEPARATE DIRS
+REPLICA_NAME=`echo $HOSTNAME | sed -E 's/.*-//'`
+sed -i "s+/var/seamless/log/quota-management-system+/var/seamless/log/quota-management-system/quota-management-system/${REPLICA_NAME}+g" /opt/seamless/conf/quota-management-system/log4j2.xml

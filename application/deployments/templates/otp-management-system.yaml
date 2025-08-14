@@ -1,0 +1,85 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otp-management
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: otp-management
+    egressTraffic: green
+spec:
+  replicas: {{ index .Values.replica.otpmanagement .Values.env }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge:  40%
+       maxUnavailable: 20%
+  selector:
+    matchLabels:
+      app: otp-management
+  template:
+    metadata:
+      labels:
+        app: otp-management
+    spec:
+      initContainers:
+      - name: copy-configs
+        image: {{ .Values.image.init_centos }}
+        imagePullPolicy: IfNotPresent
+        command: ['bash','/scripts/configs-copy']
+        volumeMounts:
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-cm-main
+          mountPath: /main
+        - name: vol-cm-otp-management-main
+          mountPath: /otp-management
+        - name: vol-cm-otp-management-copy
+          mountPath: /scripts
+      containers:
+      - name: otp-management
+        image: {{ .Values.image.otpmanagement }}
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 8899
+        readinessProbe:
+          tcpSocket:
+            port: 8899
+          {{- include "probe" (list . "readiness" "otpmanagement") | nindent 10 }}
+        livenessProbe:
+          tcpSocket:
+            port: 8899
+          {{- include "probe" (list . "liveness" "otpmanagement") | nindent 10 }}
+
+        env:
+        - name: DEFAULT_TIME_ZONE
+          value: "{{ .Values.timezone }}"
+        - name: TZ
+          value: "{{ .Values.timezone }}"
+        volumeMounts:
+        - name: tz-{{ .Values.country }}
+          mountPath: /usr/share/zoneinfo/Asia/Dhaka
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-logs-otp-management
+          mountPath: {{ .Values.logs }}/otp-management-system
+      volumes:
+      - name: tz-{{ .Values.country }}
+        hostPath:
+          path: /usr/share/zoneinfo/{{ .Values.timezone }}
+      - name: vol-cm-main
+        configMap:
+          name: cm-main
+      - name: vol-cm-otp-management-main
+        configMap:
+          name: cm-otp-management-main
+      - name: vol-logs-otp-management
+        persistentVolumeClaim:
+          claimName: logs-otp-management-{{ .Release.Namespace }}
+      - name: config-dir-main
+        emptyDir: {}
+      - name: vol-cm-otp-management-copy
+        configMap:
+          name: cm-otp-management-copy
+      imagePullSecrets:
+      - name: {{ .Values.secret }}

@@ -1,0 +1,15 @@
+REPLACE INTO `Refill`.`resources` (`datakey`, `data`, `LastUpdated`, `ResourceGroup`, `startup`, `touched`, `last_modified`) VALUES
+('?(Len)/?(*)/?(StaticMenu)/manage_djezzy_service_adaptor(FlowControl)/?(Window)/langmap(StringResource)','msg=Djezzy Service Adaptor','2010-03-31 15:53:12','?(RefillAdmin)','2010-03-31 15:50:51','2010-03-31 15:53:13','2010-03-31 15:53:13'),
+('?(Astd)/?(*)/?(OUTDjezzyServiceAdaptor)/group(CompleteGroup)/w(Window)/appearance(StringResource)','<IFRAME SRC=\"%|{manage_djezzy_service_adaptor(OUTDjezzyServiceAdaptor)/djezzy_service_adaptor_system_url(TextMessage)/w(Window)}|%\" WIDTH=\"100%\" HEIGHT=\"100%\" frameborder=\"0\">\r\nIf you can see this, it means that your browser doesnt \r\nsupport IFRAME tags.  Click on the \r\n<A id="186" HREF=\"%|{manage_djezzy_service_adaptor(OUTDjezzyServiceAdaptor)/djezzy_service_adaptor_system_url(TextMessage)/w(Window)}|%\">link</A> \r\nto visit the Djezzy Service Adaptor management page.\r\n</IFRAME>\r\n\r\n\r\n','2010-05-10 16:18:17','?(RefillAdmin)','2011-02-01 11:30:28','2011-02-01 11:58:51','2011-02-01 11:58:51'),
+('?(Len)/?(*)/?(StaticMenu)/search_users(FlowControl)/?(Window)/langmap(StringResource)','msg=Search Users','2022-10-15 13:43:01','?(RefillAdmin)','2022-10-15 13:40:12','2022-10-15 13:43:01','2022-10-15 13:43:01');
+
+UPDATE `Refill`.`resources` SET data = CONCAT(IFNULL(data,""), '\nsearch_users=Search Users\nsearch_users_info=Specify search parameters using one of the fields below. A list of users, matching your search criteria will be displayed below.\ndomain_users=Domain Users\nuser_search_user_role=Role\nuser_search_user_status=Status\nuser_search_user_name=User Id')
+where datakey = '?(Len)/?(*)/?(EditDomainUsers)/group(CompleteGroup)/w(Window)/langmap(StringResource)';
+
+INSERT INTO `Refill`.`id_scenarios` (`ScenarioName`, `ScenarioDescription`, `ScenarioGroup`, `last_modified`, `domain_key`) VALUES
+('Manage djezzy service adaptor','Manage djezzy service adaptor','Admin/Manage djezzy service adaptor',now(),3),
+('Manage User search','Manage Reseller User search','Support/Search users',now(),3);
+
+INSERT INTO `Refill`.`id_scenario_objects` (`ScenarioKey`, `ObjectPath`, `AutoActivate`, `ErrorMark`, `Comment`) VALUES
+((select `ScenarioKey` from `Refill`.`id_scenarios` where `ScenarioName` = 'Manage djezzy service adaptor' and `ScenarioDescription` = 'Manage djezzy service adaptor' and `ScenarioGroup` = 'Admin/Manage djezzy service adaptor'), '/site(Site)/default-shared(AdminApp)/admin_ERS(OUTAdminERSSystem)/main_menu(StaticMenu)/admin(StaticMenu)/manage_djezzy_service_adaptor(FlowControl)', '0', '0', 'scenario object for manager service adaptor'),
+((select `ScenarioKey` from `Refill`.`id_scenarios` where `ScenarioName` = 'Manage User search' and `ScenarioDescription` = 'Manage Reseller User search' and `ScenarioGroup` = 'Support/Search users'), '/site(Site)/default-shared(AdminApp)/admin_ERS(OUTAdminERSSystem)/main_menu(StaticMenu)/support(StaticMenu)/manage_reseller_users(FlowControl)', '0', '0', 'scenario object for managing reseller users');

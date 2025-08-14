@@ -1,0 +1,11 @@
+#!/bin/bash
+
+mkdir -p /opt/seamless/conf/businesslogic
+
+cp -L /main/* /opt/seamless/conf/
+cp -L /businesslogic/* /opt/seamless/conf/businesslogic/
+
+
+# SEGREGATE REPLICA LOGS INTO SEPARATE DIRS
+REPLICA_NAME=`echo $HOSTNAME | sed -E 's/.*-//'`
+sed -i "s+/var/seamless/log/businesslogic+/var/seamless/log/businesslogic/businesslogic/${REPLICA_NAME}+g" /opt/seamless/conf/businesslogic/log4j2.xml

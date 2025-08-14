@@ -1,0 +1,19 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-link-simulator-main
+  namespace: {{ .Release.Namespace }}
+binaryData:
+{{- $files := .Files }}
+{{- range tuple "configs/link-simulator/cert.jks" "configs/link-simulator/localhost.crt" }}
+  {{ (base .) }}: |-
+{{ $files.Get . | b64enc | indent 4 }}
+{{- end }}
+data:
+{{- range $path, $_ := .Files.Glob "configs/link-simulator/*" }}
+{{- if and (not (hasSuffix ".jks" $path)) (not (hasSuffix ".crt" $path)) }}
+  {{ regexReplaceAll "(.*)/" $path "" }}: |-
+{{ $.Files.Get $path | indent 4 }}
+{{- end }}
+{{- end }}

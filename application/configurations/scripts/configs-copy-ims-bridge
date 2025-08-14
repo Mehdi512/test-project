@@ -1,0 +1,11 @@
+#!/bin/bash
+
+mkdir -p /opt/seamless/conf/ims-bridge
+
+cp -L /main/* /opt/seamless/conf/
+cp -L /ims-bridge/* /opt/seamless/conf/ims-bridge/
+
+
+# SEGREGATE REPLICA LOGS INTO SEPARATE DIRS
+REPLICA_NAME=`echo $HOSTNAME | sed -E 's/.*-//'`
+#sed -i "s+/var/seamless/log/ims-bridge+/var/seamless/log/ims-bridge/ims-bridge/${REPLICA_NAME}+g" /opt/seamless/conf/ims-bridge/log4j2.xml

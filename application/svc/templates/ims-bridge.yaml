@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: ims-bridge
+  name: svc-ims-bridge
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - port: 8919
+    targetPort: 8919
+  selector:
+    app: ims-bridge
+  type: ClusterIP

@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: idm-erp-link
+  name: svc-idm-erp-link
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - port: 15700
+    targetPort: 15700
+  selector:
+    app: idm-erp-link
+  type: ClusterIP

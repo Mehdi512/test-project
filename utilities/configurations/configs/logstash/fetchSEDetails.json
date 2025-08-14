@@ -1,0 +1,1 @@
+{"query": {"bool": {"must": [{ "term": { "dms.resellerInfo.reseller.resellerId.keyword": "%{[dms.resellerInfo.reseller.resellerId]}" } }]}}, "_source": ["dms.resellerInfo.reseller.resellerId", "dms.resellerInfo.reseller.status", "dms.resellerInfo.reseller.resellerName", "dms.resellerInfo.reseller.resellerMSISDN", "routeCode"], "size": 1}

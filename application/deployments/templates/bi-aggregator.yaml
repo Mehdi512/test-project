@@ -1,0 +1,91 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bi-aggregator
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: bi-aggregator
+    egressTraffic: green
+spec:
+  replicas: {{ index .Values.replica.biaggregator .Values.env }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge:  40%
+       maxUnavailable: 20%
+  selector:
+    matchLabels:
+      app: bi-aggregator
+  template:
+    metadata:
+      labels:
+        app: bi-aggregator
+    spec:
+      initContainers:
+      - name: copy-configs
+        image: {{ .Values.image.init_centos }}
+        imagePullPolicy: IfNotPresent
+        command: ['bash', '/scripts/configs-copy']
+        volumeMounts:
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-cm-main
+          mountPath: /main
+        - name: vol-cm-biaggregator-main
+          mountPath: /biaggregator-main
+        - name: vol-cm-biaggregator-scripts
+          mountPath: /biaggregator-scripts
+        - name: vol-cm-biaggregator-scripts2
+          mountPath: /biaggregator-scripts2
+        - name: vol-cm-biaggregator-mapping
+          mountPath: /biaggregator-mapping
+        - name: vol-cm-biaggregator-copy
+          mountPath: /scripts
+      containers:
+      - name: bi-aggregator
+        image: {{ .Values.image.biaggregator }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5554
+        env:
+        - name: DEFAULT_TIME_ZONE
+          value: "{{ .Values.timezone }}"
+        - name: TZ
+          value: "{{ .Values.timezone }}"
+        volumeMounts:
+        - name: tz-{{ .Values.country }}
+          mountPath: /usr/share/zoneinfo/Asia/Dhaka
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-logs-biaggregator
+          mountPath: {{ .Values.logs }}/bi-aggregator
+      volumes:
+      - name: tz-{{ .Values.country }}
+        hostPath:
+          path: /usr/share/zoneinfo/{{ .Values.timzone }}
+      - name: vol-cm-main
+        configMap:
+          name: cm-main
+      - name: vol-cm-biaggregator-main
+        configMap:
+          name: cm-biaggregator-main
+      - name: vol-cm-biaggregator-scripts
+        configMap:
+          name: cm-biaggregator-scripts
+      - name: vol-cm-biaggregator-scripts2
+        configMap:
+          name: cm-biaggregator-scripts2
+      - name: vol-cm-biaggregator-mapping
+        configMap:
+          name: cm-biaggregator-mapping
+      - name: vol-cm-biaggregator-copy
+        configMap:
+          name: cm-biaggregator-copy
+      - name: vol-logs-biaggregator
+        persistentVolumeClaim:
+          claimName: logs-biaggregator-{{ .Release.Namespace }}
+      - name: config-dir-main
+        emptyDir: {}
+      imagePullSecrets:
+      - name: {{ .Values.secret }}

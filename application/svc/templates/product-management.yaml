@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: product-management
+  name: svc-product-management
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - port: 8012
+    targetPort: 8012
+  selector:
+    app: product-management
+  type: ClusterIP

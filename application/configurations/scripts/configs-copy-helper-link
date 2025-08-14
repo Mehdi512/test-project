@@ -1,0 +1,13 @@
+#!/bin/bash
+
+mkdir -p /opt/seamless/conf/helper-link/{actions,messages}
+
+cp -L /main/* /opt/seamless/conf/
+cp -L /helper-link-main/* /opt/seamless/conf/helper-link/
+cp -L /helper-link-action/* /opt/seamless/conf/helper-link/actions/
+cp -L /helper-link-messages/* /opt/seamless/conf/helper-link/messages/
+
+
+# SEGREGATE REPLICA LOGS INTO SEPARATE DIRS
+REPLICA_NAME=`echo $HOSTNAME | sed -E 's/.*-//'`
+sed -i "s+/var/seamless/log/helper-link+/var/seamless/log/helper-link/helper-link/${REPLICA_NAME}+g" /opt/seamless/conf/helper-link/log4j2.properties

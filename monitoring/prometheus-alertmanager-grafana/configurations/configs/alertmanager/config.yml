@@ -1,0 +1,20 @@
+global:
+  resolve_timeout: 5m
+  smtp_smarthost: 'smtp.gmail.com:587'  # Use the appropriate port for Gmail SMTP
+  smtp_require_tls: true  # Enable TLS for secure communication
+templates:
+- '/etc/alertmanager/*.tmpl'
+route:
+  receiver: alert-emailer
+  group_by: ['alertname', 'priority']
+  group_wait: 180s
+  repeat_interval: 24h
+
+receivers:
+- name: 'alert-emailer'
+  email_configs:
+  - to: 'barun.kumar.das22@seamless.se'
+    from: 'new.starlinkqatar@gmail.com'
+    smarthost: 'smtp.gmail.com:587'  # Use the appropriate port for Gmail SMTP
+    auth_username: 'new.starlinkqatar@gmail.com'
+    auth_password: 'fvdbbunjjfrutkzg'

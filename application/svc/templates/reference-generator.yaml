@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: reference-generator
+  name: svc-reference-generator
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - port: 9997
+    targetPort: 9997
+  selector:
+    app: reference-generator
+  type: ClusterIP

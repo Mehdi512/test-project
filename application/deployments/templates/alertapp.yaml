@@ -1,0 +1,79 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alertapp
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: alertapp
+    egressTraffic: green
+    version: v1
+spec:
+  replicas: {{ index .Values.replica.alertapp .Values.env }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge:  40%
+       maxUnavailable: 20%
+  selector:
+    matchLabels:
+      app: alertapp
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: alertapp
+        version: v1
+    spec:
+      initContainers:
+      - name: copy-configs
+        image: {{ .Values.image.init_centos }}
+        imagePullPolicy: IfNotPresent
+        command: ['bash','/scripts/configs-copy']
+        volumeMounts:
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-cm-main
+          mountPath: /main
+        - name: vol-cm-alertapp-main
+          mountPath: /alertapp
+        - name: vol-cm-alertapp-copy
+          mountPath: /scripts
+      containers:
+      - name: alertapp
+        image: {{ .Values.image.alertapp }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8375
+        env:
+        - name: DEFAULT_TIME_ZONE
+          value: "{{ .Values.timezone }}"
+        - name: TZ
+          value: "{{ .Values.timezone }}"
+        volumeMounts:
+        - name: tz-{{ .Values.country }}
+          mountPath: /usr/share/zoneinfo/Asia/Dhaka
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-logs-alertapp
+          mountPath: {{ .Values.logs }}/alertapp
+      volumes:
+      - name: tz-{{ .Values.country }}
+        hostPath:
+          path: /usr/share/zoneinfo/{{ .Values.timezone }}
+      - name: vol-cm-main
+        configMap:
+          name: cm-main
+      - name: vol-cm-alertapp-main
+        configMap:
+          name: cm-alertapp-main
+      - name: vol-logs-alertapp
+        persistentVolumeClaim:
+          claimName: logs-alertapp-{{ .Release.Namespace }}
+      - name: config-dir-main
+        emptyDir: {}
+      - name: vol-cm-alertapp-copy
+        configMap:
+          name: cm-alertapp-copy
+      imagePullSecrets:
+      - name: {{ .Values.secret }}

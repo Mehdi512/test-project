@@ -1,0 +1,180 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logstash
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: logstash
+    egressTraffic: green
+spec:
+  replicas: {{ index .Values.replica.logstash .Values.env }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge:  40%
+       maxUnavailable: 20%
+  selector:
+    matchLabels:
+      app: logstash
+  template:
+    metadata:
+      labels:
+        app: logstash
+    spec:
+      initContainers:
+      - name: copy-configs
+        image: {{ .Values.image.init_centos }}
+        imagePullPolicy: IfNotPresent
+        command: ['bash','/scripts/configs-copy']
+        volumeMounts:
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-cm-main
+          mountPath: /main
+        - name: vol-cm-logstash-main
+          mountPath: /logstash-main
+        - name: vol-cm-logstash-mapping
+          mountPath: /logstash-mapping
+        - name: vol-cm-logstash-ruby
+          mountPath: /logstash-ruby
+        - name: vol-cm-logstash-copy
+          mountPath: /scripts
+        - name: vol-cm-logstash-cert
+          mountPath: /logstash-cert
+        - name: vol-cm-logstash-jar
+          mountPath: /logstash-jar
+      containers:
+      - name: logstash
+        image: {{ .Values.image.logstash }}
+        imagePullPolicy: IfNotPresent
+        command: ["/usr/share/logstash/bin/logstash"]
+        args:
+        - "--path.settings"
+        - "/opt/seamless/conf/logstash"
+        ports:
+        - containerPort: 5094
+        readinessProbe:
+          tcpSocket:
+            port: 5094
+          {{- include "probe" (list . "readiness" "logstash") | nindent 10 }}
+        livenessProbe:
+          tcpSocket:
+            port: 5094
+          {{- include "probe" (list . "liveness" "logstash") | nindent 10 }}
+        env:
+        - name: DEFAULT_TIME_ZONE
+          value: "{{ .Values.timezone }}"
+        - name: TZ
+          value: "{{ .Values.timezone }}"
+        volumeMounts:
+        - name: tz-{{ .Values.country }}
+          mountPath: /etc/localtime
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-logs-logstash
+          mountPath: {{ .Values.logs }}/logstash-system
+        - name: vol-notification-manager
+          mountPath: /var/seamless/log/notification-manager
+          subPath: .
+        - name: vol-kyc
+          mountPath: /var/seamless/log/kyc
+          subPath: .
+        - name: vol-dms
+          mountPath: /var/seamless/log/dealer-management
+          subPath: .
+        - name: vol-oms
+          mountPath: /var/seamless/log/order-management
+          subPath: .
+        - name: vol-inventory-management
+          mountPath: /var/seamless/log/inventory-management
+          subPath: .
+        - name: vol-account-management-service
+          mountPath: /var/seamless/log/account-management
+          subPath: .
+        - name: vol-pms
+          mountPath: /var/seamless/log/product-management
+          subPath: .
+        - name: vol-group-management
+          mountPath: /var/seamless/log/group-management
+          subPath: .
+        - name: vol-identity-management
+          mountPath: /var/seamless/log/identity-management
+          subPath: .
+        - name: vol-cms
+          mountPath: /var/seamless/log/contract-management
+          subPath: .
+        - name: vol-batch-scheduling
+          mountPath: /var/seamless/log/batch-scheduling
+          subPath: .
+        - name: vol-bi-engine
+          mountPath: /var/seamless/log/bi-engine
+          subPath: .
+      volumes:
+      - name: tz-{{ .Values.country }}
+        hostPath:
+          path: /usr/share/zoneinfo/{{ .Values.timezone }}
+      - name: vol-cm-main
+        configMap:
+          name: cm-main
+      - name: vol-cm-logstash-main
+        configMap:
+          name: cm-logstash-main
+      - name: vol-cm-logstash-mapping
+        configMap:
+          name: cm-logstash-mapping
+      - name: vol-cm-logstash-ruby
+        configMap:
+          name: cm-logstash-ruby
+      - name: vol-logs-logstash
+        persistentVolumeClaim:
+          claimName: logs-logstash-{{ .Release.Namespace }}
+      - name: config-dir-main
+        emptyDir: {}
+      - name: vol-cm-logstash-copy
+        configMap:
+          name: cm-logstash-copy
+      - name: vol-cm-logstash-cert
+        configMap:
+          name: cm-logstash-cert
+      - name: vol-cm-logstash-jar
+        configMap:
+          name: cm-logstash-jar
+      - name: vol-notification-manager
+        persistentVolumeClaim:
+          claimName: logs-notification-manager-{{ .Release.Namespace }}
+      - name: vol-kyc
+        persistentVolumeClaim:
+          claimName: logs-kyc-{{ .Release.Namespace }}
+      - name: vol-dms
+        persistentVolumeClaim:
+          claimName: logs-dealer-management-{{ .Release.Namespace }}
+      - name: vol-oms
+        persistentVolumeClaim:
+          claimName: logs-order-management-{{ .Release.Namespace }}
+      - name: vol-inventory-management
+        persistentVolumeClaim:
+          claimName: logs-inventory-management-{{ .Release.Namespace }}
+      - name: vol-account-management-service
+        persistentVolumeClaim:
+          claimName: logs-account-management-{{ .Release.Namespace }}
+      - name: vol-pms
+        persistentVolumeClaim:
+          claimName: logs-product-management-{{ .Release.Namespace }}
+      - name: vol-group-management
+        persistentVolumeClaim:
+          claimName: logs-group-management-{{ .Release.Namespace }}
+      - name: vol-identity-management
+        persistentVolumeClaim:
+          claimName: logs-identity-management-{{ .Release.Namespace }}
+      - name: vol-cms
+        persistentVolumeClaim:
+          claimName: logs-contract-management-{{ .Release.Namespace }}
+      - name: vol-batch-scheduling
+        persistentVolumeClaim:
+          claimName: logs-batch-scheduling-{{ .Release.Namespace }}
+      - name: vol-bi-engine
+        persistentVolumeClaim:
+          claimName: logs-bi-engine-{{ .Release.Namespace }}
+      imagePullSecrets:
+      - name: {{ .Values.secret }}

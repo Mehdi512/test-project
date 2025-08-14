@@ -1,0 +1,71 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: redis
+    egressTraffic: green
+spec:
+  replicas: {{ index .Values.replica.redis .Values.env }}
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+      - name: redis
+        image: {{ .Values.image.redis }}
+        imagePullPolicy: IfNotPresent
+        command: ['redis-server', '/etc/redis/redis.conf']
+        env:
+        - name: DEFAULT_TIME_ZONE
+          value: "{{ .Values.timzone }}"
+        ports:
+        - containerPort: 6379
+        readinessProbe:
+          tcpSocket:
+            port: 6379
+          {{- include "probe" (list . "readiness" "redis") | nindent 10 }}
+        livenessProbe:
+          tcpSocket:
+            port: 6379
+          {{- include "probe" (list . "liveness" "redis") | nindent 10 }}
+        volumeMounts:
+        - name: tz-{{ .Values.country }}
+          mountPath: /etc/localtime
+        - name: vol-redis-data
+          mountPath: /data
+        - name: vol-cm-redis
+          mountPath: /etc/redis/
+      volumes:
+      - name: tz-{{ .Values.country }}
+        hostPath:
+          path: /usr/share/zoneinfo/{{ .Values.timzone }}
+      - name: vol-cm-redis
+        configMap:
+          name: cm-redis-{{ .Release.Namespace }}
+{{- if eq .Values.private_registry true }}
+      imagePullSecrets:
+      - name: {{ .Values.secret }}
+{{- end }}
+  volumeClaimTemplates:
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: vol-redis-data
+    spec:
+      storageClassName: {{ .Values.storageclass_name }}
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 50Gi

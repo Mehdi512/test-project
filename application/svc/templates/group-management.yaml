@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: group-management
+  name: svc-group-management
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - port: 8084
+    targetPort: 8084
+  selector:
+    app: group-management
+  type: ClusterIP

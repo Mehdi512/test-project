@@ -1,0 +1,1 @@
+{"query": {"bool": {"must": [{ "term": { "routeCode.keyword": "%{[current_route_code]}" } },{ "term": { "dms.resellerInfo.reseller.resellerTypeId.keyword": "RET" } }]}},"_source": ["dms.resellerInfo.reseller.resellerId"],"size": 1000}

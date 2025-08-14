@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+    <Appenders>
+        <Console name="LogToConsole" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d [%t] %-5p %c - %m%n"/>
+        </Console>
+        <!-- Daily Rolling File Appender -->
+        <RollingFile name="MAINLOG" fileName="/var/seamless/log/gp-idm-asset-management/gp-idm-asset-management.log"
+                     filePattern="/var/seamless/log/gp-idm-asset-management/gp-idm-asset-management.log.%d{yyyy-MM-dd}">
+            <PatternLayout>
+                <Pattern>%d [%t] %-5p %c - %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <Append>true</Append>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- Root Logger -->
+        <Root level="info">
+            <AppenderRef ref="MAINLOG"/>
+        </Root>
+
+        <!-- Specific Logger for se.seamless -->
+        <Logger name="se.seamless" level="info" additivity="false">
+            <AppenderRef ref="MAINLOG"/>
+        </Logger>
+    </Loggers>
+</Configuration>

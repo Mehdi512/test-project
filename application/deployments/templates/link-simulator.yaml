@@ -1,0 +1,54 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: link-simulator
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: link-simulator
+    egressTraffic: green
+spec:
+  replicas: {{ index .Values.replica.linksimulator .Values.env }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge:  40%
+       maxUnavailable: 20%
+  selector:
+    matchLabels:
+      app: link-simulator
+  template:
+    metadata:
+      labels:
+        app: link-simulator
+    spec:
+      containers:
+      - name: link-simulator
+        image: {{ .Values.image.linksimulator }}
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 8096
+        volumeMounts:
+        - name: tz-{{ .Values.country }}
+          mountPath: /etc/localtime
+        - name: vol-cm-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-cm-link-simulator-main
+          mountPath: {{ .Values.conf }}/link-simulator
+        - name: vol-logs-link-simulator
+          mountPath: {{ .Values.logs }}/link-simulator
+      volumes:
+      - name: tz-{{ .Values.country }}
+        hostPath:
+          path: /usr/share/zoneinfo/{{ .Values.timezone }}
+      - name: vol-cm-main
+        configMap:
+          name: cm-main
+      - name: vol-cm-link-simulator-main
+        configMap:
+          name: cm-link-simulator-main
+      - name: vol-logs-link-simulator
+        persistentVolumeClaim:
+          claimName: logs-link-simulator-{{ .Release.Namespace }}
+      imagePullSecrets:
+      - name: {{ .Values.secret }}

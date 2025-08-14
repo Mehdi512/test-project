@@ -1,0 +1,15 @@
+---
+apiVersion: v2
+name: rvm-cni
+description: 'Offline Chart For CNI: Flannel'
+version: 0.26.4
+appVersion: "0.26.4"
+keywords:
+  - cni
+  - flannel
+home: https://seamless.se/
+sources:
+  - repolink
+maintainers:
+  - name: Khalid Mehmood
+    email: khalid.mehmood@seamless.se

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+mkdir -p /opt/seamless/conf/gp-idm-erp-link
+
+cp -L /main/* /opt/seamless/conf/
+cp -L /idm-erp-link-main/* /opt/seamless/conf/gp-idm-erp-link/
+
+
+# SEGREGATE REPLICA LOGS INTO SEPARATE DIRS
+REPLICA_NAME=`echo $HOSTNAME | sed -E 's/.*-//'`
+sed -i "s+/var/seamless/log/gp-idm-erp-link+/var/seamless/log/gp-idm-erp-link/gp-idm-erp-link/gp-idm-erp-link/${REPLICA_NAME}+g" /opt/seamless/conf/gp-idm-erp-link/log4j.properties
+sed -i "s+/var/seamless/log/gp-idm-erp-link+/var/seamless/log/gp-idm-erp-link/gp-idm-erp-link/gp-idm-erp-link/${REPLICA_NAME}+g" /opt/seamless/conf/gp-idm-erp-link/log4j2.xml

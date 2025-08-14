@@ -1,0 +1,1 @@
+{ "query": { "bool": { "must": [ { "term": { "routeCode.keyword": "%{[routeCode]}" } }, { "term": { "dms.resellerInfo.reseller.resellerTypeId.keyword": "SE" } } ] } }, "_source": ["dms.resellerInfo.reseller.resellerId", "dms.resellerInfo.reseller.status", "dms.resellerInfo.reseller.resellerName", "dms.resellerInfo.reseller.resellerMSISDN"], "size": 1 }

@@ -1,0 +1,5 @@
+SET FOREIGN_KEY_CHECKS = 0;
+use quotamanagement;
+
+
+SET FOREIGN_KEY_CHECKS = 1;

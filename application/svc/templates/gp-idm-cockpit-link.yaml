@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: idm-cockpit-link
+  name: svc-idm-cockpit-link
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - port: 15501
+    targetPort: 15501
+  selector:
+    app: idm-cockpit-link
+  type: ClusterIP

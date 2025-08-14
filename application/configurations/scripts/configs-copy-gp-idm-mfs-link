@@ -1,0 +1,11 @@
+#!/bin/bash
+
+mkdir -p /opt/seamless/conf/gp-idm-mfs-link
+
+cp -L /main/* /opt/seamless/conf/
+cp -L /idm-mfs-link-main/* /opt/seamless/conf/gp-idm-mfs-link/
+
+
+# SEGREGATE REPLICA LOGS INTO SEPARATE DIRS
+REPLICA_NAME=`echo $HOSTNAME | sed -E 's/.*-//'`
+sed -i "s+/var/seamless/log/gp-idm-mfs-link+/var/seamless/log/gp-idm-mfs-link/gp-idm-mfs-link/${REPLICA_NAME}+g" /opt/seamless/conf/gp-idm-mfs-link/log4j.properties

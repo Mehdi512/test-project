@@ -1,0 +1,54 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: kafka
+    egressTraffic: green
+spec:
+  replicas: {{ index .Values.replica.kafka .Values.env }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge:  40%
+       maxUnavailable: 20%
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - kafka
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: kafka
+        image: {{ .Values.image.kafka }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9092
+        - containerPort: 3030
+        - containerPort: 2181
+        - containerPort: 8081
+        - containerPort: 8082
+        - containerPort: 8083
+        env:
+        - name: ADV_HOST
+          value: "svc-kafka"
+        - name: DEFAULT_TIME_ZONE
+          value: "{{ .Values.timezone }}"
+        - name: TZ
+          value: "{{ .Values.timezone }}"
+      imagePullSecrets:
+      - name: {{ .Values.secret }}

@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: idm-cms-link
+  name: svc-idm-cms-link
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - port: 15801
+    targetPort: 15801
+  selector:
+    app: idm-cms-link
+  type: ClusterIP

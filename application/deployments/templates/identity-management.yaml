@@ -1,0 +1,93 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: identity-management
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: identity-management
+    egressTraffic: green
+    version: v1
+spec:
+  podManagementPolicy: Parallel
+  replicas: {{ index .Values.replica.identitymanagement .Values.env }}
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 1
+  serviceName: "svc-identity-management"
+  selector:
+    matchLabels:
+      app: identity-management
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: identity-management
+        version: v1
+    spec:
+      initContainers:
+      - name: copy-configs
+        image: {{ .Values.image.init_centos }}
+        imagePullPolicy: IfNotPresent
+        command: ['bash','/scripts/configs-copy']
+        volumeMounts:
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-cm-main
+          mountPath: /main
+        - name: vol-cm-identity-management-main
+          mountPath: /identity-management-main
+        - name: vol-cm-identity-management-templates
+          mountPath: /identity-management-templates
+        - name: vol-cm-identity-management-copy
+          mountPath: /scripts
+      containers:
+      - name: identity-management
+        image: {{ .Values.image.identitymanagement }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8219
+        readinessProbe:
+          tcpSocket:
+            port: 8219
+          {{- include "probe" (list . "readiness" "identitymanagement") | nindent 10 }}
+        livenessProbe:
+          tcpSocket:
+            port: 8219
+          {{- include "probe" (list . "liveness" "identitymanagement") | nindent 10 }}
+        env:
+        - name: DEFAULT_TIME_ZONE
+          value: "{{ .Values.timezone }}"
+        - name: TZ
+          value: "{{ .Values.timezone }}"
+        volumeMounts:
+        - name: tz-{{ .Values.country }}
+          mountPath: /usr/share/zoneinfo/Asia/Dhaka
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-logs-identity-management
+          mountPath: {{ .Values.logs }}/identity-management
+      volumes:
+      - name: tz-{{ .Values.country }}
+        hostPath:
+          path: /usr/share/zoneinfo/{{ .Values.timezone }}
+      - name: vol-cm-main
+        configMap:
+          name: cm-main
+      - name: vol-cm-identity-management-main
+        configMap:
+          name: cm-identity-management-main
+      - name: vol-cm-identity-management-templates
+        configMap:
+          name: cm-identity-management-templates
+      - name: vol-logs-identity-management
+        persistentVolumeClaim:
+          claimName: logs-identity-management-{{ .Release.Namespace }}
+      - name: config-dir-main
+        emptyDir: {}
+      - name: vol-cm-identity-management-copy
+        configMap:
+          name: cm-identity-management-copy
+      imagePullSecrets:
+      - name: {{ .Values.secret }}

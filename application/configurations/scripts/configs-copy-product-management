@@ -1,0 +1,13 @@
+#!/bin/bash
+
+mkdir -p /opt/seamless/conf/product-management/templates/{audit,tdr}
+
+cp -L /main/* /opt/seamless/conf/
+cp -L /product-management-main/* /opt/seamless/conf/product-management/
+cp -L /product-management-audit/* /opt/seamless/conf/product-management/templates/audit/
+cp -L /product-management-tdr/* /opt/seamless/conf/product-management/templates/tdr/
+
+
+# SEGREGATE REPLICA LOGS INTO SEPARATE DIRS
+REPLICA_NAME=`echo $HOSTNAME | sed -E 's/.*-//'`
+sed -i "s+/var/seamless/log/product-management+/var/seamless/log/product-management/product-management/${REPLICA_NAME}+g" /opt/seamless/conf/product-management/log4j2.properties

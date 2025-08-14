@@ -1,0 +1,97 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kannel
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: kannel
+    egressTraffic: green
+spec:
+  replicas: {{ index .Values.replica.kannel .Values.env }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge:  40%
+       maxUnavailable: 20%
+  selector:
+    matchLabels:
+      app: kannel
+  template:
+    metadata:
+      labels:
+        app: kannel
+    spec:
+      initContainers:
+      - name: copy-configs
+        image: {{ .Values.image.init_centos }}
+        imagePullPolicy: IfNotPresent
+        command: ['bash','/scripts/configs-copy']
+        volumeMounts:
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-cm-main
+          mountPath: /main
+        - name: vol-cm-kannel-main
+          mountPath: /kannel
+        - name: vol-cm-kannel-copy
+          mountPath: /scripts
+      containers:
+      - name: kannel-bearerbox
+        image: {{ .Values.image.kannel }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 13001
+        env:
+        - name: DEFAULT_TIME_ZONE
+          value: "{{ .Values.timezone }}"
+        - name: TZ
+          value: "{{ .Values.timezone }}"
+        command: ['/usr/local/sbin/bearerbox','/opt/seamless/conf/kannel/kannel.conf']
+        volumeMounts:
+        - name: tz-{{ .Values.country }}
+          mountPath: /etc/localtime
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-logs-kannel
+          mountPath: {{ .Values.logs }}/kannel
+      - name: kannel-smsbox
+        image: {{ .Values.image.kannel }}
+        env:
+        - name: DEFAULT_TIME_ZONE
+          value: "{{ .Values.timezone }}"
+        - name: TZ
+          value: "{{ .Values.timezone }}"
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 13013
+        resources:
+          {{- include "resources.kannel" (dict "env" .Values.env) | nindent 10 }}
+        command: ['/usr/local/sbin/smsbox','/opt/seamless/conf/kannel/kannel.conf']
+        volumeMounts:
+        - name: tz-{{ .Values.country }}
+          mountPath: /etc/localtime
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-logs-kannel
+          mountPath: {{ .Values.logs }}/kannel
+      volumes:
+      - name: tz-{{ .Values.country }}
+        hostPath:
+          path: /usr/share/zoneinfo/{{ .Values.timezone }}
+      - name: vol-cm-main
+        configMap:
+          name: cm-main
+      - name: vol-cm-kannel-main
+        configMap:
+          name: cm-kannel-main
+      - name: vol-logs-kannel
+        persistentVolumeClaim:
+          claimName: logs-kannel-{{ .Release.Namespace }}
+      - name: config-dir-main
+        emptyDir: {}
+      - name: vol-cm-kannel-copy
+        configMap:
+          name: cm-kannel-copy
+      imagePullSecrets:
+      - name: {{ .Values.secret }}

@@ -1,0 +1,10 @@
+<html xmlns:th="http://www.thymeleaf.org" th:inline="text" th:remove="tag">
+Dear Partner, [[${transaction.objectMap?.resellerData?.resellerName != null ? transaction.objectMap.resellerData.resellerName : 'unknown_name'}]]([[${transaction.objectMap?.resellerData?.resellerId != null ? transaction.objectMap.resellerData.resellerId : 'unknown_id'}]]). [[${transaction.objectMap?.resellerIdCashQuotaMap[transaction.objectMap?.resellerData?.resellerId] != null ? 'Your allocation in the form of cash has been removed for the following product items:' : ''}]]
+[# th:each="productQuota : ${transaction.objectMap?.resellerIdCashQuotaMap[transaction.objectMap?.resellerData?.resellerId]}"]
+- [[${transaction.objectMap?.productSKUAndVariantMap[productQuota.productSku] != null ? transaction.objectMap.productSKUAndVariantMap[productQuota.productSku].productName : productQuota.productSku}]]
+[/]
+[[${transaction.objectMap?.resellerIdCreditQuotaMap[transaction.objectMap?.resellerData?.resellerId] != null ? 'Your allocation in the form of credit has been removed for the following product items:' : ''}]]
+[# th:each="productQuota : ${transaction.objectMap?.resellerIdCreditQuotaMap[transaction.objectMap?.resellerData?.resellerId]}"]
+- [[${transaction.objectMap?.productSKUAndVariantMap[productQuota.productSku] != null ? transaction.objectMap.productSKUAndVariantMap[productQuota.productSku].productName : productQuota.productSku}]]
+[/]. [[${(transaction.objectMap?.resellerIdCashQuotaMap[transaction.objectMap?.resellerData?.resellerId] != null || transaction.objectMap?.resellerIdCreditQuotaMap[transaction.objectMap?.resellerData?.resellerId] != null) ? 'Please login to check the allocation tab which is assigned.' : ''}]]
+</html>

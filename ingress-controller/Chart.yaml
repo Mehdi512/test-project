@@ -1,0 +1,15 @@
+---
+apiVersion: v2
+name: rvm-ingress-controller
+description: 'Nginx Ingress Controller Chart'
+version: 1.0.4
+appVersion: "1.0.4"
+keywords:
+  - unified
+  - ingress
+home: https://seamless.se/
+sources:
+  - repolink
+maintainers:
+  - name: Khalid Mehmood
+    email: khalid.mehmood@seamless.se

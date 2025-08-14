@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: idm-asset-management
+  name: svc-idm-asset-management
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - port: 8093
+    targetPort: 8093
+  selector:
+    app: idm-asset-management
+  type: ClusterIP

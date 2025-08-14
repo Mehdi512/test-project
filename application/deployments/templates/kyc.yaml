@@ -1,0 +1,101 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kyc
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: kyc
+    egressTraffic: green
+spec:
+  replicas: {{ index .Values.replica.kyc .Values.env }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge:  40%
+       maxUnavailable: 20%
+  selector:
+    matchLabels:
+      app: kyc
+  template:
+    metadata:
+      labels:
+        app: kyc
+    spec:
+      initContainers:
+      - name: copy-configs
+        image: {{ .Values.image.init_centos }}
+        imagePullPolicy: IfNotPresent
+        command: ['bash','/scripts/configs-copy']
+        volumeMounts:
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-cm-main
+          mountPath: /main
+        - name: vol-cm-kyc-main
+          mountPath: /kyc-main
+        - name: vol-cm-kyc-templates-audit
+          mountPath: /kyc-templates-audit
+        - name: vol-cm-kyc-templates-tdr
+          mountPath: /kyc-templates-tdr
+        - name: vol-cm-kyc-actions
+          mountPath: /kyc-actions-groovy
+        - name: vol-cm-kyc-mappings
+          mountPath: /kyc-mappings
+        - name: vol-cm-kyc-notification
+          mountPath: /kyc-notification
+        - name: vol-cm-kyc-copy
+          mountPath: /scripts
+      containers:
+      - name: kyc
+        image: {{ .Values.image.kyc }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8297
+        env:
+        - name: DEFAULT_TIME_ZONE
+          value: "{{ .Values.timezone }}"
+        - name: TZ
+          value: "{{ .Values.timezone }}"
+        volumeMounts:
+        - name: tz-{{ .Values.country }}
+          mountPath: /usr/share/zoneinfo/Asia/Dhaka
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-logs-kyc
+          mountPath: {{ .Values.logs }}/kyc
+      volumes:
+      - name: tz-{{ .Values.country }}
+        hostPath:
+          path: /usr/share/zoneinfo/{{ .Values.timezone }}
+      - name: vol-cm-main
+        configMap:
+          name: cm-main
+      - name: vol-cm-kyc-main
+        configMap:
+          name: cm-kyc-main
+      - name: vol-cm-kyc-templates-audit
+        configMap:
+          name: cm-kyc-templates-audit
+      - name: vol-cm-kyc-templates-tdr
+        configMap:
+          name: cm-kyc-templates-tdr
+      - name: vol-cm-kyc-actions
+        configMap:
+          name: cm-kyc-actions
+      - name: vol-cm-kyc-mappings
+        configMap:
+          name: cm-kyc-mappings
+      - name: vol-cm-kyc-notification
+        configMap:
+          name: cm-kyc-notification
+      - name: vol-logs-kyc
+        persistentVolumeClaim:
+          claimName: logs-kyc-{{ .Release.Namespace }}
+      - name: config-dir-main
+        emptyDir: {}
+      - name: vol-cm-kyc-copy
+        configMap:
+          name: cm-kyc-copy
+      imagePullSecrets:
+      - name: {{ .Values.secret }}

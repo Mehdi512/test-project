@@ -1,0 +1,15 @@
+{{- if eq .Values.jar_volume true }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-apmjar-{{ .Release.Namespace }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ .Values.storageCapacity.apm_jar }}
+  storageClassName: {{ .Values.storageclass_name }}
+{{- end }}

@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: grn-processor
+  name: svc-grn-processor
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - port: 15444
+    targetPort: 15444
+  selector:
+    app: grn-processor
+  type: ClusterIP

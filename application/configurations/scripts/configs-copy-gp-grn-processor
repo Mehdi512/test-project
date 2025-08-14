@@ -1,0 +1,12 @@
+#!/bin/bash
+
+mkdir -p /opt/seamless/conf/gp-grn-processor/templates/notification
+
+cp -L /main/* /opt/seamless/conf/
+cp -L /gp-grn-processor-main/* /opt/seamless/conf/gp-grn-processor/
+cp -L /gp-grn-processor-notification/* /opt/seamless/conf/gp-grn-processor/templates/notification/
+
+
+# SEGREGATE REPLICA LOGS INTO SEPARATE DIRS
+REPLICA_NAME=`echo $HOSTNAME | sed -E 's/.*-//'`
+sed -i "s+/var/seamless/log/gp-grn-processor+/var/seamless/log/gp-grn-processor/gp-grn-processor/${REPLICA_NAME}+g" /opt/seamless/conf/gp-grn-processor/log4j.properties

@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: businesslogic
+  name: svc-businesslogic
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - port: 8922
+    targetPort: 8922
+  selector:
+    app: businesslogic
+  type: ClusterIP

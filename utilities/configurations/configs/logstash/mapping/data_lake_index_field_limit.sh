@@ -1,0 +1,1 @@
+curl -s -u elastic:seamless -XPUT "https://{{ .Values.HOST__elasticsearch }}:{{ .Values.PORT__elasticsearch }}/data_lake*/_settings"  -H 'Content-Type: application/json' -d '{"index.mapping.total_fields.limit": 1200}'

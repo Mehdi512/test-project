@@ -1,0 +1,7 @@
+http.host: "0.0.0.0"
+xpack.monitoring.elasticsearch.hosts: [ "https://{{ .Values.HOST__elasticsearch }}:{{ .Values.PORT__elasticsearch }}" ]
+xpack.monitoring.elasticsearch.username: "{{ .Values.HOST__elasticsearch_user }}"
+xpack.monitoring.elasticsearch.password: "{{ .Values.HOST__elasticsearch_pass }}"
+xpack.monitoring.elasticsearch.ssl.certificate_authority: "/opt/seamless/conf/logstash/cert/http_ca.crt"
+xpack.monitoring.elasticsearch.ssl.verification_mode: "none"
+xpack.monitoring.enabled: false

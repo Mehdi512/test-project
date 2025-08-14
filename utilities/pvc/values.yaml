@@ -1,0 +1,21 @@
+
+# LOGS
+logs: /var/seamless/log
+
+## Below Vars Will Change Storage Type Used For All Deployments
+# If Set To manual, Persistent Volumes Will Be Created Using HostPath Manual Storage
+# If You Have Storage Provided Via StorageClass, Set Below Var To storageclass
+storage_type: 'storageclass' # Select B/W manual/storageclass
+
+# If Above Var Set To storageclass, You Need To Specify Its Name Below
+storageclass_name: 'sample-storage-class' # manual For Manual, Specify If Any Other
+
+## STORAGE CAPACITY FOR EACH COMPONENT
+# Specify Their Sizes Accordinly
+storageCapacity:
+  filebeat: '200Mi'
+  kannel: '200Mi'
+  logstash: '200Mi'
+  minio: '200Mi'
+  rabbitmq: '1Gi'
+  redis: '1Gi'

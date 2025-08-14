@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: dealer-management
+  name: svc-dealer-management
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - port: 8033
+    targetPort: 8033
+  selector:
+    app: dealer-management
+  type: ClusterIP

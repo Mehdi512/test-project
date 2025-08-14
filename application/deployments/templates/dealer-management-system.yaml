@@ -1,0 +1,89 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dealer-management
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: dealer-management
+    egressTraffic: green
+spec:
+  replicas: {{ index .Values.replica.dealermanagement .Values.env }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge:  40%
+       maxUnavailable: 20%
+  selector:
+    matchLabels:
+      app: dealer-management
+  template:
+    metadata:
+      labels:
+        app: dealer-management
+    spec:
+      initContainers:
+      - name: copy-configs
+        image: {{ .Values.image.init_centos }}
+        imagePullPolicy: IfNotPresent
+        command: ['bash','/scripts/configs-copy']
+        volumeMounts:
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-cm-main
+          mountPath: /main
+        - name: vol-cm-dealer-management-main
+          mountPath: /dealer-management-main
+        - name: vol-cm-dealer-management-templates
+          mountPath: /dealer-management-templates
+        - name: vol-cm-dealer-management-copy
+          mountPath: /scripts
+      containers:
+      - name: dealer-management
+        image: {{ .Values.image.dealermanagement }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8033
+        readinessProbe:
+          tcpSocket:
+            port: 8033
+          {{- include "probe" (list . "readiness" "dealermanagement") | nindent 10 }}
+        livenessProbe:
+          tcpSocket:
+            port: 8033
+          {{- include "probe" (list . "liveness" "dealermanagement") | nindent 10 }}
+        env:
+        - name: DEFAULT_TIME_ZONE
+          value: "{{ .Values.timezone }}"
+        - name: TZ
+          value: "{{ .Values.timezone }}"
+        volumeMounts:
+        - name: tz-{{ .Values.country }}
+          mountPath: /usr/share/zoneinfo/Asia/Dhaka
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-logs-dealer-management
+          mountPath: {{ .Values.logs }}/dealer-management-system
+      volumes:
+      - name: tz-{{ .Values.country }}
+        hostPath:
+          path: /usr/share/zoneinfo/{{ .Values.timezone }}
+      - name: vol-cm-main
+        configMap:
+          name: cm-main
+      - name: vol-cm-dealer-management-main
+        configMap:
+          name: cm-dealer-management-main
+      - name: vol-cm-dealer-management-templates
+        configMap:
+          name: cm-dealer-management-templates
+      - name: vol-logs-dealer-management
+        persistentVolumeClaim:
+          claimName: logs-dealer-management-{{ .Release.Namespace }}
+      - name: config-dir-main
+        emptyDir: {}
+      - name: vol-cm-dealer-management-copy
+        configMap:
+          name: cm-dealer-management-copy
+      imagePullSecrets:
+      - name: {{ .Values.secret }}

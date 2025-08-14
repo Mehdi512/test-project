@@ -1,0 +1,77 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: idm-cim-link
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: idm-cim-link
+    egressTraffic: green
+spec:
+  replicas: {{ index .Values.replica.idmcimlink .Values.env }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge:  40%
+       maxUnavailable: 20%
+  selector:
+    matchLabels:
+      app: idm-cim-link
+  template:
+    metadata:
+      labels:
+        app: idm-cim-link
+    spec:
+      initContainers:
+      - name: copy-configs
+        image: {{ .Values.image.init_centos }}
+        imagePullPolicy: IfNotPresent
+        command: ['bash','/scripts/configs-copy']
+        volumeMounts:
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-cm-main
+          mountPath: /main
+        - name: vol-cm-gp-idm-cim-link-main
+          mountPath: /idm-cim-link-main
+        - name: vol-cm-gp-idm-cim-link-copy
+          mountPath: /scripts
+      {{- include "hostaliases" . | indent 6 }}
+      containers:
+      - name: idm-cim-link
+        image: {{ .Values.image.idmcimlink }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 15800
+        env:
+        - name: DEFAULT_TIME_ZONE
+          value: "{{ .Values.timezone }}"
+        - name: TZ
+          value: "{{ .Values.timezone }}"
+        volumeMounts:
+        - name: tz-{{ .Values.country }}
+          mountPath: /usr/share/zoneinfo/Asia/Dhaka
+        - name: config-dir-main
+          mountPath: {{ .Values.conf }}
+        - name: vol-logs-idm-cim-link
+          mountPath: {{ .Values.logs }}/gp-idm-cim-link
+      volumes:
+      - name: tz-{{ .Values.country }}
+        hostPath:
+          path: /usr/share/zoneinfo/{{ .Values.timezone }}
+      - name: vol-cm-main
+        configMap:
+          name: cm-main
+      - name: vol-cm-gp-idm-cim-link-main
+        configMap:
+          name: cm-gp-idm-cim-link-main
+      - name: vol-logs-idm-cim-link
+        persistentVolumeClaim:
+          claimName: logs-idm-cim-link-{{ .Release.Namespace }}
+      - name: config-dir-main
+        emptyDir: {}
+      - name: vol-cm-gp-idm-cim-link-copy
+        configMap:
+          name: cm-gp-idm-cim-link-copy
+      imagePullSecrets:
+      - name: {{ .Values.secret }}
